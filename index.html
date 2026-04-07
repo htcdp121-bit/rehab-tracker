@@ -30,7 +30,6 @@ body {
   font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
-  /* App 風格：固定高度，不讓 body 本身捲動 */
   height: 100dvh;
   overflow: hidden;
   display: flex;
@@ -44,7 +43,6 @@ body {
   padding: 20px;
   padding-top: max(20px, env(safe-area-inset-top));
   text-align: center;
-  /* 在 flex column 中固定高度，不壓縮 */
   flex-shrink: 0;
   z-index: 100;
 }
@@ -54,7 +52,6 @@ body {
   display: flex;
   background: var(--card);
   border-top: 1px solid var(--border);
-  /* 固定在底部 */
   flex-shrink: 0;
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 100;
@@ -76,18 +73,18 @@ body {
 /* === 各 tab 頁面：佔滿剩餘空間，獨立捲動 === */
 .tab-content {
   display: none;
-  flex: 1;               /* 佔滿 header 和 tab-bar 之間的空間 */
-  overflow-y: auto;      /* 在此元素內捲動，不影響 body */
+  flex: 1;
+  overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;  /* iOS 慣性滾動 */
+  -webkit-overflow-scrolling: touch;
   padding: 16px;
-  padding-bottom: calc(env(safe-area-inset-bottom) + 24px); /* safe area + 餘裕 */
+  /* 足夠的底部留白，確保最後一個元素不被 tab-bar 遮住 */
+  padding-bottom: calc(env(safe-area-inset-bottom) + 100px);
   max-width: 500px;
   width: 100%;
   margin: 0 auto;
-  /* 修正 max-width 置中但佔滿寬度的問題 */
   box-sizing: border-box;
-  align-self: stretch;   /* 讓 flex item 橫向佔滿 */
+  align-self: stretch;
 }
 .tab-content.active { display: block; }
 
@@ -317,39 +314,25 @@ body {
   <h1>🏋️ 每日復健訓練</h1>
   <div class="date" id="headerDate"></div>
 </div>
-
 <div id="tabToday" class="tab-content active">
   <div class="progress-container">
     <div class="progress-ring-wrapper">
       <svg class="progress-ring" width="140" height="140">
         <circle class="progress-ring-bg" cx="70" cy="70" r="60"/>
-        <circle class="progress-ring-fill" id="progressRing" cx="70" cy="70" r="60"
-          stroke-dasharray="376.99" stroke-dashoffset="376.99"/>
+        <circle class="progress-ring-fill" id="progressRing" cx="70" cy="70" r="60" stroke-dasharray="376.99" stroke-dashoffset="376.99"/>
       </svg>
       <div class="progress-text" id="progressText">0%</div>
     </div>
     <div class="progress-label">今日完成率</div>
-    <div id="streakBadge" class="streak-badge" style="display:none;">
-      <span>🔥</span><span id="streakCount">0</span><span>天連續全勤</span>
-    </div>
+    <div id="streakBadge" class="streak-badge" style="display:none;"><span>🔥</span><span id="streakCount">0</span><span>天連續全勤</span></div>
   </div>
   <div id="exerciseList"></div>
 </div>
-
 <div id="tabHistory" class="tab-content">
   <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-value" id="stat7day">0%</div>
-      <div class="stat-label">近7天平均</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statStreak">0</div>
-      <div class="stat-label">連續全勤</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statTotal">0</div>
-      <div class="stat-label">累計天數</div>
-    </div>
+    <div class="stat-card"><div class="stat-value" id="stat7day">0%</div><div class="stat-label">近7天平均</div></div>
+    <div class="stat-card"><div class="stat-value" id="statStreak">0</div><div class="stat-label">連續全勤</div></div>
+    <div class="stat-card"><div class="stat-value" id="statTotal">0</div><div class="stat-label">累計天數</div></div>
   </div>
   <div class="chart-container">
     <div class="chart-title">📊 近30天完成率趨勢</div>
@@ -360,7 +343,6 @@ body {
     <div id="historyList"></div>
   </div>
 </div>
-
 <div id="tabManage" class="tab-content">
   <div class="manage-section">
     <div class="manage-title">📝 目前訓練動作</div>
@@ -368,17 +350,10 @@ body {
   </div>
   <div class="add-form">
     <h3>➕ 新增動作</h3>
-    <div class="form-group">
-      <label>動作名稱</label>
-      <input type="text" id="newExName" placeholder="例：橋式">
-    </div>
-    <div class="form-group">
-      <label>規格說明</label>
-      <input type="text" id="newExSpec" placeholder="例：10下 × 3組">
-    </div>
+    <div class="form-group"><label>動作名稱</label><input type="text" id="newExName" placeholder="例：橋式"></div>
+    <div class="form-group"><label>規格說明</label><input type="text" id="newExSpec" placeholder="例：10下 × 3組"></div>
     <button class="add-btn" onclick="addExercise()">新增動作</button>
   </div>
-
   <div class="history-fill-section">
     <h3>📅 補填歷史資料</h3>
     <div class="section-desc">把之前記事本的訓練紀錄補填進來</div>
@@ -387,27 +362,16 @@ body {
       <button class="load-date-btn" onclick="loadFillDate()">載入</button>
     </div>
     <div class="fill-exercises-list" id="fillExercisesList"></div>
-    <button class="save-history-btn" id="saveHistoryBtn" onclick="saveHistoryData()" style="display:none;">
-      💾 儲存這天的紀錄
-    </button>
+    <button class="save-history-btn" id="saveHistoryBtn" onclick="saveHistoryData()" style="display:none;">💾 儲存這天的紀錄</button>
     <div class="fill-status" id="fillStatus"></div>
   </div>
 </div>
-
 <div class="tab-bar">
-  <button class="active" onclick="switchTab('tabToday', this)">
-    <span class="tab-icon">🏋️</span>今日
-  </button>
-  <button onclick="switchTab('tabHistory', this)">
-    <span class="tab-icon">📊</span>歷史
-  </button>
-  <button onclick="switchTab('tabManage', this)">
-    <span class="tab-icon">⚙️</span>管理
-  </button>
+  <button class="active" onclick="switchTab('tabToday', this)"><span class="tab-icon">🏋️</span>今日</button>
+  <button onclick="switchTab('tabHistory', this)"><span class="tab-icon">📊</span>歷史</button>
+  <button onclick="switchTab('tabManage', this)"><span class="tab-icon">⚙️</span>管理</button>
 </div>
-
 <div class="confetti-container" id="confettiContainer"></div>
-
 <div class="modal-overlay" id="deleteModal">
   <div class="modal">
     <h3>確認刪除</h3>
@@ -419,354 +383,167 @@ body {
   </div>
 </div>
 <script>
-const STORAGE_DATA = 'rehab-tracker-data';
-const STORAGE_EXERCISES = 'rehab-tracker-exercises';
+const STORAGE_DATA='rehab-tracker-data';
+const STORAGE_EXERCISES='rehab-tracker-exercises';
+const DEFAULT_EXERCISES=[{id:1,name:'側躺髖內轉',spec:'10下 × 3組'},{id:2,name:'微蹲單腳站',spec:'兩腳都練，10個呼吸 × 5組'},{id:3,name:'死蟲',spec:'10個呼吸 × 5組'},{id:4,name:'呼吸訓練',spec:'側倒10個 + 擺正10個呼吸，連續3組'}];
+let deleteTargetId=null;
+function getExercises(){const s=localStorage.getItem(STORAGE_EXERCISES);if(s)return JSON.parse(s);localStorage.setItem(STORAGE_EXERCISES,JSON.stringify(DEFAULT_EXERCISES));return DEFAULT_EXERCISES;}
+function saveExercises(e){localStorage.setItem(STORAGE_EXERCISES,JSON.stringify(e));}
+function getData(){const s=localStorage.getItem(STORAGE_DATA);return s?JSON.parse(s):{};}
+function saveData(d){localStorage.setItem(STORAGE_DATA,JSON.stringify(d));}
+function getToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function formatDate(ds){const d=new Date(ds+'T00:00:00');const w=['日','一','二','三','四','五','六'];return(d.getMonth()+1)+'/'+d.getDate()+' ('+w[d.getDay()]+')';}
+function getTodayDisplay(){const d=new Date();const w=['日','一','二','三','四','五','六'];return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 '+w[d.getDay()];}
 
-const DEFAULT_EXERCISES = [
-  { id: 1, name: '側躺髖內轉', spec: '10下 × 3組' },
-  { id: 2, name: '微蹲單腳站', spec: '兩腳都練，10個呼吸 × 5組' },
-  { id: 3, name: '死蟲', spec: '10個呼吸 × 5組' },
-  { id: 4, name: '呼吸訓練', spec: '側倒10個 + 擺正10個呼吸，連續3組' }
-];
-
-let deleteTargetId = null;
-
-function getExercises() {
-  const saved = localStorage.getItem(STORAGE_EXERCISES);
-  if (saved) return JSON.parse(saved);
-  localStorage.setItem(STORAGE_EXERCISES, JSON.stringify(DEFAULT_EXERCISES));
-  return DEFAULT_EXERCISES;
-}
-function saveExercises(e) { localStorage.setItem(STORAGE_EXERCISES, JSON.stringify(e)); }
-function getData() { const s = localStorage.getItem(STORAGE_DATA); return s ? JSON.parse(s) : {}; }
-function saveData(d) { localStorage.setItem(STORAGE_DATA, JSON.stringify(d)); }
-
-function getToday() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-function formatDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
-  const weekdays = ['日','一','二','三','四','五','六'];
-  return (d.getMonth()+1) + '/' + d.getDate() + ' (' + weekdays[d.getDay()] + ')';
-}
-function getTodayDisplay() {
-  const d = new Date();
-  const weekdays = ['日','一','二','三','四','五','六'];
-  return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日 ' + weekdays[d.getDay()];
-}
-
-function switchTab(tabId, btn) {
-  document.querySelectorAll('.tab-content').forEach(t => {
-    t.classList.remove('active');
-    t.scrollTop = 0; /* 切換 tab 時重置捲動到頂端 */
-  });
-  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+function switchTab(tabId,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>{t.classList.remove('active');t.scrollTop=0;});
+  document.querySelectorAll('.tab-bar button').forEach(b=>b.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
   btn.classList.add('active');
-  if (tabId === 'tabHistory') renderHistory();
-  if (tabId === 'tabManage') renderManage();
+  if(tabId==='tabHistory')renderHistory();
+  if(tabId==='tabManage')renderManage();
 }
 
-function renderExercises() {
-  const exercises = getExercises();
-  const data = getData();
-  const today = getToday();
-  const todayData = data[today] || {};
-  const list = document.getElementById('exerciseList');
-  list.innerHTML = exercises.map((ex, i) => {
-    const done = todayData[ex.id] === true;
-    return '<div class="exercise-card ' + (done ? 'completed' : '') + '" onclick="toggleExercise(' + ex.id + ')">' +
-      '<div class="exercise-num">' + (i+1) + '</div>' +
-      '<div class="check-circle"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
-      '<div class="exercise-info"><div class="name">' + ex.name + '</div><div class="spec">' + ex.spec + '</div></div></div>';
+function renderExercises(){
+  const exercises=getExercises();const data=getData();const today=getToday();const td=data[today]||{};
+  document.getElementById('exerciseList').innerHTML=exercises.map((ex,i)=>{
+    const done=td[ex.id]===true;
+    return '<div class="exercise-card '+(done?'completed':'')+'" onclick="toggleExercise('+ex.id+')">'+'<div class="exercise-num">'+(i+1)+'</div>'+'<div class="check-circle"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+'<div class="exercise-info"><div class="name">'+ex.name+'</div><div class="spec">'+ex.spec+'</div></div></div>';
   }).join('');
-  updateProgress(exercises, todayData);
+  updateProgress(exercises,td);
 }
 
-function toggleExercise(exId) {
-  const data = getData(); const today = getToday();
-  if (!data[today]) data[today] = {};
-  data[today][exId] = !data[today][exId];
-  saveData(data); renderExercises();
-  const exercises = getExercises();
-  if (exercises.every(ex => data[today][ex.id] === true)) triggerConfetti();
+function toggleExercise(exId){
+  const data=getData();const today=getToday();if(!data[today])data[today]={};
+  data[today][exId]=!data[today][exId];saveData(data);renderExercises();
+  if(getExercises().every(ex=>data[today][ex.id]===true))triggerConfetti();
 }
 
-function updateProgress(exercises, todayData) {
-  const total = exercises.length;
-  const done = exercises.filter(ex => todayData[ex.id] === true).length;
-  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  const circumference = 2 * Math.PI * 60;
-  document.getElementById('progressRing').style.strokeDashoffset = circumference - (pct / 100) * circumference;
-  document.getElementById('progressText').textContent = pct + '%';
-  const streak = calculateStreak();
-  const badge = document.getElementById('streakBadge');
-  if (streak > 0) { badge.style.display = 'inline-flex'; document.getElementById('streakCount').textContent = streak; }
-  else { badge.style.display = 'none'; }
+function updateProgress(exercises,td){
+  const total=exercises.length;const done=exercises.filter(ex=>td[ex.id]===true).length;
+  const pct=total>0?Math.round((done/total)*100):0;
+  const c=2*Math.PI*60;
+  document.getElementById('progressRing').style.strokeDashoffset=c-(pct/100)*c;
+  document.getElementById('progressText').textContent=pct+'%';
+  const streak=calculateStreak();const badge=document.getElementById('streakBadge');
+  if(streak>0){badge.style.display='inline-flex';document.getElementById('streakCount').textContent=streak;}
+  else{badge.style.display='none';}
 }
 
-function calculateStreak() {
-  const data = getData(); const exercises = getExercises();
-  let streak = 0; const d = new Date();
-  for (let i = 0; i < 365; i++) {
-    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    const dd = data[ds];
-    if (dd && exercises.every(ex => dd[ex.id] === true)) { streak++; }
-    else { if (i === 0) { d.setDate(d.getDate()-1); continue; } break; }
+function calculateStreak(){
+  const data=getData();const exercises=getExercises();let streak=0;const d=new Date();
+  for(let i=0;i<365;i++){
+    const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const dd=data[ds];
+    if(dd&&exercises.every(ex=>dd[ex.id]===true)){streak++;}
+    else{if(i===0){d.setDate(d.getDate()-1);continue;}break;}
     d.setDate(d.getDate()-1);
   }
   return streak;
 }
 
-function triggerConfetti() {
-  const container = document.getElementById('confettiContainer');
-  const colors = ['#667eea','#48bb78','#f6ad55','#fc8181','#b794f4','#63b3ed'];
-  for (let i = 0; i < 50; i++) {
-    const c = document.createElement('div'); c.className = 'confetti';
-    c.style.left = Math.random() * 100 + '%';
-    c.style.background = colors[Math.floor(Math.random() * colors.length)];
-    c.style.animationDelay = Math.random() * 0.5 + 's';
-    c.style.animationDuration = (2 + Math.random() * 2) + 's';
-    const size = 6 + Math.random() * 8;
-    c.style.width = size + 'px'; c.style.height = size + 'px';
-    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-    container.appendChild(c); setTimeout(() => c.remove(), 4000);
+function triggerConfetti(){
+  const container=document.getElementById('confettiContainer');
+  const colors=['#667eea','#48bb78','#f6ad55','#fc8181','#b794f4','#63b3ed'];
+  for(let i=0;i<50;i++){
+    const c=document.createElement('div');c.className='confetti';
+    c.style.left=Math.random()*100+'%';c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDelay=Math.random()*0.5+'s';c.style.animationDuration=(2+Math.random()*2)+'s';
+    const size=6+Math.random()*8;c.style.width=size+'px';c.style.height=size+'px';
+    c.style.borderRadius=Math.random()>0.5?'50%':'2px';
+    container.appendChild(c);setTimeout(()=>c.remove(),4000);
   }
 }
 
-function renderHistory() {
-  const data = getData(); const exercises = getExercises();
-  const dates = Object.keys(data).sort().reverse();
-  const last7 = dates.slice(0, 7);
-  let total7 = 0;
-  last7.forEach(d => {
-    const dd = data[d];
-    const done = exercises.filter(ex => dd[ex.id] === true).length;
-    total7 += exercises.length > 0 ? (done / exercises.length) * 100 : 0;
-  });
-  document.getElementById('stat7day').textContent = last7.length > 0 ? Math.round(total7 / last7.length) + '%' : '0%';
-  document.getElementById('statStreak').textContent = calculateStreak();
-  document.getElementById('statTotal').textContent = dates.length;
-  drawChart(data, exercises);
-  const histList = document.getElementById('historyList');
-  if (dates.length === 0) {
-    histList.innerHTML = '<div style="text-align:center;padding:40px;color:#718096"><div style="font-size:3rem">📭</div><div>還沒有任何紀錄</div></div>';
-    return;
-  }
-  histList.innerHTML = dates.slice(0, 30).map(ds => {
-    const dd = data[ds];
-    const done = exercises.filter(ex => dd[ex.id] === true).length;
-    const pct = exercises.length > 0 ? Math.round((done / exercises.length) * 100) : 0;
-    return '<div class="history-item">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-      '<div class="history-date">' + formatDate(ds) + '</div>' +
-      '<div class="history-rate">' + pct + '%</div></div>' +
-      '<div class="history-exercises">' +
-      exercises.map(ex => '<span class="history-ex ' + (dd[ex.id] ? 'done' : 'missed') + '">' +
-        (dd[ex.id] ? '✅' : '❌') + ' ' + ex.name + '</span>').join('') +
-      '</div></div>';
+function renderHistory(){
+  const data=getData();const exercises=getExercises();const dates=Object.keys(data).sort().reverse();
+  const last7=dates.slice(0,7);let total7=0;
+  last7.forEach(d=>{const dd=data[d];const done=exercises.filter(ex=>dd[ex.id]===true).length;total7+=exercises.length>0?(done/exercises.length)*100:0;});
+  document.getElementById('stat7day').textContent=last7.length>0?Math.round(total7/last7.length)+'%':'0%';
+  document.getElementById('statStreak').textContent=calculateStreak();
+  document.getElementById('statTotal').textContent=dates.length;
+  drawChart(data,exercises);
+  const histList=document.getElementById('historyList');
+  if(dates.length===0){histList.innerHTML='<div style="text-align:center;padding:40px;color:#718096"><div style="font-size:3rem">📭</div><div>還沒有任何紀錄</div></div>';return;}
+  histList.innerHTML=dates.slice(0,30).map(ds=>{
+    const dd=data[ds];const done=exercises.filter(ex=>dd[ex.id]===true).length;
+    const pct=exercises.length>0?Math.round((done/exercises.length)*100):0;
+    return '<div class="history-item"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="history-date">'+formatDate(ds)+'</div><div class="history-rate">'+pct+'%</div></div><div class="history-exercises">'+exercises.map(ex=>'<span class="history-ex '+(dd[ex.id]?'done':'missed')+'">'+(dd[ex.id]?'✅':'❌')+' '+ex.name+'</span>').join('')+'</div></div>';
   }).join('');
 }
 
-function drawChart(data, exercises) {
-  const canvas = document.getElementById('chartCanvas');
-  const ctx = canvas.getContext('2d');
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * 2; canvas.height = rect.height * 2;
-  ctx.scale(2, 2);
-  const W = rect.width, H = rect.height;
-  ctx.clearRect(0, 0, W, H);
-  const days = [];
-  const d = new Date();
-  for (let i = 29; i >= 0; i--) {
-    const dd = new Date(d); dd.setDate(dd.getDate() - i);
-    const ds = dd.getFullYear() + '-' + String(dd.getMonth()+1).padStart(2,'0') + '-' + String(dd.getDate()).padStart(2,'0');
-    const dayData = data[ds] || {};
-    const done = exercises.filter(ex => dayData[ex.id] === true).length;
-    days.push({ pct: exercises.length > 0 ? (done / exercises.length) * 100 : 0, day: dd.getDate() });
-  }
-  const padL = 35, padR = 10, padT = 10, padB = 30;
-  const chartW = W - padL - padR, chartH = H - padT - padB;
-  ctx.strokeStyle = '#edf2f7'; ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = padT + chartH - (i / 4) * chartH;
-    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
-    ctx.fillStyle = '#a0aec0'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
-    ctx.fillText((i * 25) + '%', padL - 5, y + 3);
-  }
-  ctx.fillStyle = '#a0aec0'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
-  for (let i = 0; i < days.length; i += 5) {
-    ctx.fillText(days[i].day, padL + (i / (days.length - 1)) * chartW, H - 5);
-  }
-  ctx.beginPath(); ctx.strokeStyle = '#667eea'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
-  days.forEach((p, i) => {
-    const x = padL + (i / (days.length - 1)) * chartW;
-    const y = padT + chartH - (p.pct / 100) * chartH;
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  });
-  ctx.stroke();
-  ctx.lineTo(padL + chartW, padT + chartH); ctx.lineTo(padL, padT + chartH); ctx.closePath();
-  const grad = ctx.createLinearGradient(0, padT, 0, padT + chartH);
-  grad.addColorStop(0, 'rgba(102,126,234,0.3)'); grad.addColorStop(1, 'rgba(102,126,234,0.02)');
-  ctx.fillStyle = grad; ctx.fill();
-  days.forEach((p, i) => {
-    if (p.pct > 0) {
-      const x = padL + (i / (days.length - 1)) * chartW;
-      const y = padT + chartH - (p.pct / 100) * chartH;
-      ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = '#667eea'; ctx.fill();
-    }
-  });
+function drawChart(data,exercises){
+  const canvas=document.getElementById('chartCanvas');const ctx=canvas.getContext('2d');
+  const rect=canvas.getBoundingClientRect();canvas.width=rect.width*2;canvas.height=rect.height*2;ctx.scale(2,2);
+  const W=rect.width,H=rect.height;ctx.clearRect(0,0,W,H);
+  const days=[];const d=new Date();
+  for(let i=29;i>=0;i--){const dd=new Date(d);dd.setDate(dd.getDate()-i);const ds=dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');const dayData=data[ds]||{};const done=exercises.filter(ex=>dayData[ex.id]===true).length;days.push({pct:exercises.length>0?(done/exercises.length)*100:0,day:dd.getDate()});}
+  const padL=35,padR=10,padT=10,padB=30,chartW=W-padL-padR,chartH=H-padT-padB;
+  ctx.strokeStyle='#edf2f7';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=padT+chartH-(i/4)*chartH;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();ctx.fillStyle='#a0aec0';ctx.font='10px sans-serif';ctx.textAlign='right';ctx.fillText((i*25)+'%',padL-5,y+3);}
+  ctx.fillStyle='#a0aec0';ctx.font='9px sans-serif';ctx.textAlign='center';
+  for(let i=0;i<days.length;i+=5){ctx.fillText(days[i].day,padL+(i/(days.length-1))*chartW,H-5);}
+  ctx.beginPath();ctx.strokeStyle='#667eea';ctx.lineWidth=2.5;ctx.lineJoin='round';
+  days.forEach((p,i)=>{const x=padL+(i/(days.length-1))*chartW;const y=padT+chartH-(p.pct/100)*chartH;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+  ctx.stroke();ctx.lineTo(padL+chartW,padT+chartH);ctx.lineTo(padL,padT+chartH);ctx.closePath();
+  const grad=ctx.createLinearGradient(0,padT,0,padT+chartH);grad.addColorStop(0,'rgba(102,126,234,0.3)');grad.addColorStop(1,'rgba(102,126,234,0.02)');ctx.fillStyle=grad;ctx.fill();
+  days.forEach((p,i)=>{if(p.pct>0){const x=padL+(i/(days.length-1))*chartW;const y=padT+chartH-(p.pct/100)*chartH;ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle='#667eea';ctx.fill();}});
 }
 
-function renderManage() {
-  const exercises = getExercises();
-  document.getElementById('manageList').innerHTML = exercises.map((ex, i) =>
-    '<div class="manage-item">' +
-    '<div class="manage-info"><div class="manage-name">' + (i+1) + '. ' + ex.name + '</div>' +
-    '<div class="manage-spec">' + ex.spec + '</div></div>' +
-    '<button class="delete-btn" onclick="showDeleteModal(' + ex.id + ',\'' + ex.name.replace(/'/g,"\\'") + '\')">刪除</button></div>'
-  ).join('');
-  const fillDateEl = document.getElementById('fillDate');
-  if (fillDateEl && !fillDateEl.value) fillDateEl.value = getToday();
+function renderManage(){
+  const exercises=getExercises();
+  document.getElementById('manageList').innerHTML=exercises.map((ex,i)=>'<div class="manage-item"><div class="manage-info"><div class="manage-name">'+(i+1)+'. '+ex.name+'</div><div class="manage-spec">'+ex.spec+'</div></div><button class="delete-btn" onclick="showDeleteModal('+ex.id+',\''+ex.name.replace(/'/g,"\\'")+'\')">刪除</button></div>').join('');
+  const fillDateEl=document.getElementById('fillDate');
+  if(fillDateEl&&!fillDateEl.value)fillDateEl.value=getToday();
 }
 
-function addExercise() {
-  const name = document.getElementById('newExName').value.trim();
-  const spec = document.getElementById('newExSpec').value.trim();
-  if (!name) { alert('請輸入動作名稱'); return; }
-  if (!spec) { alert('請輸入規格說明'); return; }
-  const exercises = getExercises();
-  const maxId = exercises.reduce((max, ex) => Math.max(max, ex.id), 0);
-  exercises.push({ id: maxId + 1, name, spec });
-  saveExercises(exercises);
-  document.getElementById('newExName').value = '';
-  document.getElementById('newExSpec').value = '';
-  renderManage(); renderExercises();
+function addExercise(){
+  const name=document.getElementById('newExName').value.trim();const spec=document.getElementById('newExSpec').value.trim();
+  if(!name){alert('請輸入動作名稱');return;}if(!spec){alert('請輸入規格說明');return;}
+  const exercises=getExercises();const maxId=exercises.reduce((max,ex)=>Math.max(max,ex.id),0);
+  exercises.push({id:maxId+1,name,spec});saveExercises(exercises);
+  document.getElementById('newExName').value='';document.getElementById('newExSpec').value='';
+  renderManage();renderExercises();
 }
 
-function showDeleteModal(id, name) {
-  deleteTargetId = id;
-  document.getElementById('deleteModalText').textContent = '確定要刪除「' + name + '」嗎？';
-  document.getElementById('deleteModal').classList.add('show');
-}
-function closeDeleteModal() {
-  document.getElementById('deleteModal').classList.remove('show');
-  deleteTargetId = null;
-}
-function confirmDelete() {
-  if (deleteTargetId === null) return;
-  let exercises = getExercises().filter(ex => ex.id !== deleteTargetId);
-  saveExercises(exercises);
-  closeDeleteModal(); renderManage(); renderExercises();
-}
+function showDeleteModal(id,name){deleteTargetId=id;document.getElementById('deleteModalText').textContent='確定要刪除「'+name+'」嗎？';document.getElementById('deleteModal').classList.add('show');}
+function closeDeleteModal(){document.getElementById('deleteModal').classList.remove('show');deleteTargetId=null;}
+function confirmDelete(){if(deleteTargetId===null)return;saveExercises(getExercises().filter(ex=>ex.id!==deleteTargetId));closeDeleteModal();renderManage();renderExercises();}
 
-/* ===== 補填歷史資料功能 ===== */
-function loadFillDate() {
-  const dateVal = document.getElementById('fillDate').value;
-  if (!dateVal) { alert('請選擇日期'); return; }
-  const exercises = getExercises();
-  const data = getData();
-  const dayData = data[dateVal] || {};
-  const listEl = document.getElementById('fillExercisesList');
-  const statusEl = document.getElementById('fillStatus');
-  statusEl.className = 'fill-status'; statusEl.textContent = '';
-
-  if (exercises.length === 0) {
-    listEl.innerHTML = '<div style="color:#718096;font-size:0.85rem;padding:10px 0;">目前沒有設定訓練動作</div>';
-    document.getElementById('saveHistoryBtn').style.display = 'none';
-    return;
-  }
-
-  const d = new Date(dateVal + 'T00:00:00');
-  const weekdays = ['日','一','二','三','四','五','六'];
-  const dateLabel = (d.getMonth()+1) + '月' + d.getDate() + '日 (' + weekdays[d.getDay()] + ')';
-  const existing = Object.keys(dayData).length > 0;
-
-  listEl.innerHTML = '<div style="font-size:0.8rem;color:#718096;margin-bottom:10px;">' +
-    dateLabel + (existing ? ' ・ <span style="color:#667eea">已有紀錄，可修改</span>' : ' ・ 尚無紀錄') + '</div>' +
-    exercises.map(ex => {
-      const isDone = dayData[ex.id] === true;
-      return '<div class="fill-ex-item">' +
-        '<div><div class="fill-ex-name">' + ex.name + '</div>' +
-        '<div class="fill-ex-spec">' + ex.spec + '</div></div>' +
-        '<div class="fill-toggle">' +
-        '<button id="btn-done-' + ex.id + '" class="' + (isDone ? 'selected-done' : '') + '" onclick="setFillToggle(' + ex.id + ', true)">✅ 完成</button>' +
-        '<button id="btn-miss-' + ex.id + '" class="' + (!isDone && existing ? 'selected-miss' : '') + '" onclick="setFillToggle(' + ex.id + ', false)">❌ 未做</button>' +
-        '</div></div>';
-    }).join('');
-
-  document.getElementById('saveHistoryBtn').style.display = 'block';
-
-  /* 載入後自動捲動到補填區塊，讓用戶看到內容 */
-  setTimeout(() => {
-    const fillSection = document.querySelector('.history-fill-section');
-    const tabManage = document.getElementById('tabManage');
-    if (fillSection && tabManage) {
-      tabManage.scrollTo({ top: fillSection.offsetTop - 16, behavior: 'smooth' });
-    }
-  }, 50);
+function loadFillDate(){
+  const dateVal=document.getElementById('fillDate').value;if(!dateVal){alert('請選擇日期');return;}
+  const exercises=getExercises();const data=getData();const dayData=data[dateVal]||{};
+  const listEl=document.getElementById('fillExercisesList');const statusEl=document.getElementById('fillStatus');
+  statusEl.className='fill-status';statusEl.textContent='';
+  if(exercises.length===0){listEl.innerHTML='<div style="color:#718096;font-size:0.85rem;padding:10px 0;">目前沒有設定訓練動作</div>';document.getElementById('saveHistoryBtn').style.display='none';return;}
+  const d=new Date(dateVal+'T00:00:00');const w=['日','一','二','三','四','五','六'];
+  const dateLabel=(d.getMonth()+1)+'月'+d.getDate()+'日 ('+w[d.getDay()]+')';
+  const existing=Object.keys(dayData).length>0;
+  listEl.innerHTML='<div style="font-size:0.8rem;color:#718096;margin-bottom:10px;">'+dateLabel+(existing?' ・ <span style="color:#667eea">已有紀錄，可修改</span>':' ・ 尚無紀錄')+'</div>'+exercises.map(ex=>{const isDone=dayData[ex.id]===true;return'<div class="fill-ex-item"><div><div class="fill-ex-name">'+ex.name+'</div><div class="fill-ex-spec">'+ex.spec+'</div></div><div class="fill-toggle"><button id="btn-done-'+ex.id+'" class="'+(isDone?'selected-done':'')+'" onclick="setFillToggle('+ex.id+', true)">✅ 完成</button><button id="btn-miss-'+ex.id+'" class="'+(!isDone&&existing?'selected-miss':'')+'" onclick="setFillToggle('+ex.id+', false)">❌ 未做</button></div></div>';}).join('');
+  document.getElementById('saveHistoryBtn').style.display='block';
+  setTimeout(()=>{const fs=document.querySelector('.history-fill-section');const tm=document.getElementById('tabManage');if(fs&&tm)tm.scrollTo({top:fs.offsetTop-16,behavior:'smooth'});},50);
 }
 
-function setFillToggle(exId, done) {
-  const doneBtn = document.getElementById('btn-done-' + exId);
-  const missBtn = document.getElementById('btn-miss-' + exId);
-  if (done) { doneBtn.className = 'selected-done'; missBtn.className = ''; }
-  else { doneBtn.className = ''; missBtn.className = 'selected-miss'; }
+function setFillToggle(exId,done){
+  const db=document.getElementById('btn-done-'+exId);const mb=document.getElementById('btn-miss-'+exId);
+  if(done){db.className='selected-done';mb.className='';}else{db.className='';mb.className='selected-miss';}
 }
 
-function saveHistoryData() {
-  const dateVal = document.getElementById('fillDate').value;
-  if (!dateVal) { alert('請先選擇日期並載入'); return; }
-  const exercises = getExercises();
-  const data = getData();
-  if (!data[dateVal]) data[dateVal] = {};
-
-  const hasAny = exercises.some(ex => {
-    const dBtn = document.getElementById('btn-done-' + ex.id);
-    const mBtn = document.getElementById('btn-miss-' + ex.id);
-    return (dBtn && dBtn.classList.contains('selected-done')) ||
-           (mBtn && mBtn.classList.contains('selected-miss'));
-  });
-
-  if (!hasAny) {
-    const statusEl = document.getElementById('fillStatus');
-    statusEl.textContent = '⚠️ 請至少為一個動作選擇狀態';
-    statusEl.className = 'fill-status warning';
-    return;
-  }
-
-  exercises.forEach(ex => {
-    const doneBtn = document.getElementById('btn-done-' + ex.id);
-    const missBtn = document.getElementById('btn-miss-' + ex.id);
-    if (!doneBtn && !missBtn) return;
-    if (doneBtn && doneBtn.classList.contains('selected-done')) { data[dateVal][ex.id] = true; }
-    else if (missBtn && missBtn.classList.contains('selected-miss')) { data[dateVal][ex.id] = false; }
-  });
-
+function saveHistoryData(){
+  const dateVal=document.getElementById('fillDate').value;if(!dateVal){alert('請先選擇日期並載入');return;}
+  const exercises=getExercises();const data=getData();if(!data[dateVal])data[dateVal]={};
+  const hasAny=exercises.some(ex=>{const db=document.getElementById('btn-done-'+ex.id);const mb=document.getElementById('btn-miss-'+ex.id);return(db&&db.classList.contains('selected-done'))||(mb&&mb.classList.contains('selected-miss'));});
+  if(!hasAny){const s=document.getElementById('fillStatus');s.textContent='⚠️ 請至少為一個動作選擇狀態';s.className='fill-status warning';return;}
+  exercises.forEach(ex=>{const db=document.getElementById('btn-done-'+ex.id);const mb=document.getElementById('btn-miss-'+ex.id);if(!db&&!mb)return;if(db&&db.classList.contains('selected-done')){data[dateVal][ex.id]=true;}else if(mb&&mb.classList.contains('selected-miss')){data[dateVal][ex.id]=false;}});
   saveData(data);
-  const statusEl = document.getElementById('fillStatus');
-  const d = new Date(dateVal + 'T00:00:00');
-  const weekdays = ['日','一','二','三','四','五','六'];
-  statusEl.textContent = '✅ 已儲存 ' + (d.getMonth()+1) + '/' + d.getDate() + ' (' + weekdays[d.getDay()] + ') 的訓練紀錄！';
-  statusEl.className = 'fill-status success';
+  const s=document.getElementById('fillStatus');const d=new Date(dateVal+'T00:00:00');const w=['日','一','二','三','四','五','六'];
+  s.textContent='✅ 已儲存 '+(d.getMonth()+1)+'/'+d.getDate()+' ('+w[d.getDay()]+') 的訓練紀錄！';s.className='fill-status success';
   renderExercises();
-
-  /* 儲存後捲動到狀態訊息 */
-  setTimeout(() => {
-    const statusEl2 = document.getElementById('fillStatus');
-    const tabManage = document.getElementById('tabManage');
-    if (statusEl2 && tabManage) {
-      tabManage.scrollTo({ top: tabManage.scrollHeight, behavior: 'smooth' });
-    }
-  }, 50);
-
-  setTimeout(() => { statusEl.className = 'fill-status'; statusEl.textContent = ''; }, 3000);
+  setTimeout(()=>{const s2=document.getElementById('fillStatus');const tm=document.getElementById('tabManage');if(s2&&tm)tm.scrollTo({top:tm.scrollHeight,behavior:'smooth'});},50);
+  setTimeout(()=>{s.className='fill-status';s.textContent='';},3000);
 }
 
-// Init
-document.getElementById('headerDate').textContent = getTodayDisplay();
+document.getElementById('headerDate').textContent=getTodayDisplay();
 renderExercises();
 </script>
 </body>
