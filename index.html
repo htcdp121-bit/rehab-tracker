@@ -109,9 +109,7 @@ body {
   align-items: center; justify-content: center;
   transition: all 0.3s; flex-shrink: 0;
 }
-.exercise-card.completed .check-circle {
-  background: var(--success); border-color: var(--success);
-}
+.exercise-card.completed .check-circle { background: var(--success); border-color: var(--success); }
 .exercise-card .check-circle svg { opacity: 0; transition: opacity 0.3s; }
 .exercise-card.completed .check-circle svg { opacity: 1; }
 .exercise-info { flex: 1; }
@@ -131,8 +129,7 @@ body {
 }
 .stat-card {
   background: var(--card); border-radius: 12px;
-  padding: 16px 10px; text-align: center;
-  box-shadow: var(--shadow);
+  padding: 16px 10px; text-align: center; box-shadow: var(--shadow);
 }
 .stat-card .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
 .stat-card .stat-label { font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px; }
@@ -154,9 +151,7 @@ body {
 }
 .history-item .history-date { font-weight: 700; font-size: 0.85rem; }
 .history-item .history-rate { font-size: 0.8rem; color: var(--text-secondary); }
-.history-item .history-exercises {
-  display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;
-}
+.history-item .history-exercises { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
 .history-item .history-ex {
   font-size: 0.75rem; padding: 3px 8px; border-radius: 8px;
 }
@@ -189,7 +184,7 @@ body {
 .form-group input {
   width: 100%; padding: 10px 12px; border: 2px solid var(--border);
   border-radius: 10px; font-size: 0.9rem; font-family: inherit;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s; -webkit-user-select: text; user-select: text;
 }
 .form-group input:focus { outline: none; border-color: var(--primary); }
 .add-btn {
@@ -199,6 +194,70 @@ body {
   font-family: inherit; transition: background 0.2s;
 }
 .add-btn:hover { background: var(--primary-dark); }
+
+/* ===== 補填歷史資料 ===== */
+.history-fill-section {
+  background: var(--card); border-radius: 16px;
+  padding: 20px; box-shadow: var(--shadow); margin-top: 16px;
+}
+.history-fill-section h3 {
+  font-size: 0.95rem; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.history-fill-section .section-desc {
+  font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 14px;
+}
+.date-input-row {
+  display: flex; gap: 8px; align-items: center; margin-bottom: 14px;
+}
+.date-input-row input[type="date"] {
+  flex: 1; padding: 10px 12px; border: 2px solid var(--border);
+  border-radius: 10px; font-size: 0.9rem; font-family: inherit;
+  transition: border-color 0.2s; -webkit-user-select: text; user-select: text;
+  background: white; color: var(--text);
+}
+.date-input-row input[type="date"]:focus { outline: none; border-color: var(--primary); }
+.load-date-btn {
+  padding: 10px 16px; background: var(--primary); color: white;
+  border: none; border-radius: 10px; font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; white-space: nowrap;
+}
+.fill-exercises-list { margin-bottom: 14px; }
+.fill-ex-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.fill-ex-item:last-child { border-bottom: none; }
+.fill-ex-name { font-weight: 600; font-size: 0.9rem; }
+.fill-ex-spec { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
+.fill-toggle {
+  display: flex; gap: 0; border-radius: 8px; overflow: hidden;
+  border: 2px solid var(--border); flex-shrink: 0;
+}
+.fill-toggle button {
+  padding: 6px 14px; border: none; font-size: 0.8rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.2s, color 0.2s;
+  background: transparent; color: var(--text-secondary);
+}
+.fill-toggle button.selected-done {
+  background: var(--success); color: white;
+}
+.fill-toggle button.selected-miss {
+  background: var(--danger); color: white;
+}
+.save-history-btn {
+  width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white; border: none; border-radius: 10px;
+  font-size: 0.95rem; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: opacity 0.2s;
+}
+.save-history-btn:active { opacity: 0.85; }
+.fill-status {
+  text-align: center; font-size: 0.85rem; margin-top: 10px;
+  padding: 8px; border-radius: 8px; display: none;
+}
+.fill-status.success { background: #c6f6d5; color: #276749; display: block; }
+.fill-status.warning { background: #fefcbf; color: #744210; display: block; }
 
 /* Confetti */
 .confetti-container {
@@ -214,12 +273,6 @@ body {
   0% { transform: translateY(0) rotate(0deg); opacity: 1; }
   100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
 }
-
-/* Empty State */
-.empty-state {
-  text-align: center; padding: 40px 20px; color: var(--text-secondary);
-}
-.empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
 
 /* Modal */
 .modal-overlay {
@@ -245,7 +298,6 @@ body {
 </style>
 </head>
 <body>
-
 <div class="header">
   <h1>🏋️ 每日復健訓練</h1>
   <div class="date" id="headerDate"></div>
@@ -311,6 +363,21 @@ body {
     </div>
     <button class="add-btn" onclick="addExercise()">新增動作</button>
   </div>
+
+  <!-- 補填歷史資料區塊 -->
+  <div class="history-fill-section">
+    <h3>📅 補填歷史資料</h3>
+    <div class="section-desc">把之前記事本的訓練紀錄補填進來</div>
+    <div class="date-input-row">
+      <input type="date" id="fillDate" />
+      <button class="load-date-btn" onclick="loadFillDate()">載入</button>
+    </div>
+    <div class="fill-exercises-list" id="fillExercisesList"></div>
+    <button class="save-history-btn" id="saveHistoryBtn" onclick="saveHistoryData()" style="display:none;">
+      💾 儲存這天的紀錄
+    </button>
+    <div class="fill-status" id="fillStatus"></div>
+  </div>
 </div>
 
 <div class="tab-bar">
@@ -337,7 +404,6 @@ body {
     </div>
   </div>
 </div>
-
 <script>
 const STORAGE_DATA = 'rehab-tracker-data';
 const STORAGE_EXERCISES = 'rehab-tracker-exercises';
@@ -357,42 +423,25 @@ function getExercises() {
   localStorage.setItem(STORAGE_EXERCISES, JSON.stringify(DEFAULT_EXERCISES));
   return DEFAULT_EXERCISES;
 }
-
-function saveExercises(exercises) {
-  localStorage.setItem(STORAGE_EXERCISES, JSON.stringify(exercises));
-}
-
-function getData() {
-  const saved = localStorage.getItem(STORAGE_DATA);
-  return saved ? JSON.parse(saved) : {};
-}
-
-function saveData(data) {
-  localStorage.setItem(STORAGE_DATA, JSON.stringify(data));
-}
+function saveExercises(exercises) { localStorage.setItem(STORAGE_EXERCISES, JSON.stringify(exercises)); }
+function getData() { const s = localStorage.getItem(STORAGE_DATA); return s ? JSON.parse(s) : {}; }
+function saveData(data) { localStorage.setItem(STORAGE_DATA, JSON.stringify(data)); }
 
 function getToday() {
   const d = new Date();
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
-
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
   const weekdays = ['日','一','二','三','四','五','六'];
-  return m + '/' + day + ' (' + weekdays[d.getDay()] + ')';
+  return (d.getMonth()+1) + '/' + d.getDate() + ' (' + weekdays[d.getDay()] + ')';
 }
-
 function getTodayDisplay() {
   const d = new Date();
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
   const weekdays = ['日','一','二','三','四','五','六'];
-  return d.getFullYear() + '年' + m + '月' + day + '日 ' + weekdays[d.getDay()];
+  return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日 ' + weekdays[d.getDay()];
 }
 
-// Tab switching
 function switchTab(tabId, btn) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
@@ -402,14 +451,12 @@ function switchTab(tabId, btn) {
   if (tabId === 'tabManage') renderManage();
 }
 
-// Render exercises
 function renderExercises() {
   const exercises = getExercises();
   const data = getData();
   const today = getToday();
   const todayData = data[today] || {};
   const list = document.getElementById('exerciseList');
-
   list.innerHTML = exercises.map((ex, i) => {
     const done = todayData[ex.id] === true;
     return '<div class="exercise-card ' + (done ? 'completed' : '') + '" onclick="toggleExercise(' + ex.id + ')">' +
@@ -417,124 +464,90 @@ function renderExercises() {
       '<div class="check-circle"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
       '<div class="exercise-info"><div class="name">' + ex.name + '</div><div class="spec">' + ex.spec + '</div></div></div>';
   }).join('');
-
   updateProgress(exercises, todayData);
 }
 
 function toggleExercise(exId) {
-  const data = getData();
-  const today = getToday();
+  const data = getData(); const today = getToday();
   if (!data[today]) data[today] = {};
   data[today][exId] = !data[today][exId];
-  saveData(data);
-  renderExercises();
-
+  saveData(data); renderExercises();
   const exercises = getExercises();
-  const allDone = exercises.every(ex => data[today][ex.id] === true);
-  if (allDone) triggerConfetti();
+  if (exercises.every(ex => data[today][ex.id] === true)) triggerConfetti();
 }
 
 function updateProgress(exercises, todayData) {
   const total = exercises.length;
   const done = exercises.filter(ex => todayData[ex.id] === true).length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-
-  const circle = document.getElementById('progressRing');
   const circumference = 2 * Math.PI * 60;
-  const offset = circumference - (pct / 100) * circumference;
-  circle.style.strokeDashoffset = offset;
-
+  document.getElementById('progressRing').style.strokeDashoffset = circumference - (pct / 100) * circumference;
   document.getElementById('progressText').textContent = pct + '%';
-
   const streak = calculateStreak();
   const badge = document.getElementById('streakBadge');
-  if (streak > 0) {
-    badge.style.display = 'inline-flex';
-    document.getElementById('streakCount').textContent = streak;
-  } else {
-    badge.style.display = 'none';
-  }
+  if (streak > 0) { badge.style.display = 'inline-flex'; document.getElementById('streakCount').textContent = streak; }
+  else { badge.style.display = 'none'; }
 }
 
 function calculateStreak() {
-  const data = getData();
-  const exercises = getExercises();
-  let streak = 0;
-  const d = new Date();
-
+  const data = getData(); const exercises = getExercises();
+  let streak = 0; const d = new Date();
   for (let i = 0; i < 365; i++) {
-    const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    const dayData = data[dateStr];
-    if (dayData && exercises.every(ex => dayData[ex.id] === true)) {
-      streak++;
-    } else {
-      if (i === 0) { d.setDate(d.getDate() - 1); continue; }
-      break;
-    }
-    d.setDate(d.getDate() - 1);
+    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    const dd = data[ds];
+    if (dd && exercises.every(ex => dd[ex.id] === true)) { streak++; }
+    else { if (i === 0) { d.setDate(d.getDate()-1); continue; } break; }
+    d.setDate(d.getDate()-1);
   }
   return streak;
 }
 
-// Confetti
 function triggerConfetti() {
   const container = document.getElementById('confettiContainer');
   const colors = ['#667eea','#48bb78','#f6ad55','#fc8181','#b794f4','#63b3ed'];
   for (let i = 0; i < 50; i++) {
-    const confetti = document.createElement('div');
-    confetti.className = 'confetti';
-    confetti.style.left = Math.random() * 100 + '%';
-    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-    confetti.style.animationDelay = Math.random() * 0.5 + 's';
-    confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+    const c = document.createElement('div'); c.className = 'confetti';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 0.5 + 's';
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
     const size = 6 + Math.random() * 8;
-    confetti.style.width = size + 'px';
-    confetti.style.height = size + 'px';
-    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-    container.appendChild(confetti);
-    setTimeout(() => confetti.remove(), 4000);
+    c.style.width = size + 'px'; c.style.height = size + 'px';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    container.appendChild(c); setTimeout(() => c.remove(), 4000);
   }
 }
 
-// History
 function renderHistory() {
-  const data = getData();
-  const exercises = getExercises();
+  const data = getData(); const exercises = getExercises();
   const dates = Object.keys(data).sort().reverse();
-
-  // Stats
   const last7 = dates.slice(0, 7);
   let total7 = 0;
   last7.forEach(d => {
-    const dayData = data[d];
-    const done = exercises.filter(ex => dayData[ex.id] === true).length;
+    const dd = data[d];
+    const done = exercises.filter(ex => dd[ex.id] === true).length;
     total7 += exercises.length > 0 ? (done / exercises.length) * 100 : 0;
   });
   document.getElementById('stat7day').textContent = last7.length > 0 ? Math.round(total7 / last7.length) + '%' : '0%';
   document.getElementById('statStreak').textContent = calculateStreak();
   document.getElementById('statTotal').textContent = dates.length;
-
-  // Chart
   drawChart(data, exercises);
-
-  // History list
   const histList = document.getElementById('historyList');
   if (dates.length === 0) {
-    histList.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>還沒有任何紀錄</div></div>';
+    histList.innerHTML = '<div style="text-align:center;padding:40px;color:#718096"><div style="font-size:3rem">📭</div><div>還沒有任何紀錄</div></div>';
     return;
   }
-
-  histList.innerHTML = dates.slice(0, 30).map(dateStr => {
-    const dayData = data[dateStr];
-    const done = exercises.filter(ex => dayData[ex.id] === true).length;
+  histList.innerHTML = dates.slice(0, 30).map(ds => {
+    const dd = data[ds];
+    const done = exercises.filter(ex => dd[ex.id] === true).length;
     const pct = exercises.length > 0 ? Math.round((done / exercises.length) * 100) : 0;
     return '<div class="history-item">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-      '<div class="history-date">' + formatDate(dateStr) + '</div>' +
+      '<div class="history-date">' + formatDate(ds) + '</div>' +
       '<div class="history-rate">' + pct + '%</div></div>' +
       '<div class="history-exercises">' +
-      exercises.map(ex => '<span class="history-ex ' + (dayData[ex.id] ? 'done' : 'missed') + '">' +
-        (dayData[ex.id] ? '✅' : '❌') + ' ' + ex.name + '</span>').join('') +
+      exercises.map(ex => '<span class="history-ex ' + (dd[ex.id] ? 'done' : 'missed') + '">' +
+        (dd[ex.id] ? '✅' : '❌') + ' ' + ex.name + '</span>').join('') +
       '</div></div>';
   }).join('');
 }
@@ -543,96 +556,64 @@ function drawChart(data, exercises) {
   const canvas = document.getElementById('chartCanvas');
   const ctx = canvas.getContext('2d');
   const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * 2;
-  canvas.height = rect.height * 2;
+  canvas.width = rect.width * 2; canvas.height = rect.height * 2;
   ctx.scale(2, 2);
-  const W = rect.width;
-  const H = rect.height;
-
+  const W = rect.width, H = rect.height;
   ctx.clearRect(0, 0, W, H);
-
   const days = [];
   const d = new Date();
   for (let i = 29; i >= 0; i--) {
-    const dd = new Date(d);
-    dd.setDate(dd.getDate() - i);
+    const dd = new Date(d); dd.setDate(dd.getDate() - i);
     const ds = dd.getFullYear() + '-' + String(dd.getMonth()+1).padStart(2,'0') + '-' + String(dd.getDate()).padStart(2,'0');
     const dayData = data[ds] || {};
     const done = exercises.filter(ex => dayData[ex.id] === true).length;
-    const pct = exercises.length > 0 ? (done / exercises.length) * 100 : 0;
-    days.push({ date: ds, pct: pct, day: dd.getDate() });
+    days.push({ pct: exercises.length > 0 ? (done / exercises.length) * 100 : 0, day: dd.getDate() });
   }
-
   const padL = 35, padR = 10, padT = 10, padB = 30;
-  const chartW = W - padL - padR;
-  const chartH = H - padT - padB;
-
-  // Grid lines
-  ctx.strokeStyle = '#edf2f7';
-  ctx.lineWidth = 1;
+  const chartW = W - padL - padR, chartH = H - padT - padB;
+  ctx.strokeStyle = '#edf2f7'; ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
     const y = padT + chartH - (i / 4) * chartH;
     ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
-    ctx.fillStyle = '#a0aec0';
-    ctx.font = '10px sans-serif';
-    ctx.textAlign = 'right';
+    ctx.fillStyle = '#a0aec0'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
     ctx.fillText((i * 25) + '%', padL - 5, y + 3);
   }
-
-  // X axis labels
-  ctx.fillStyle = '#a0aec0';
-  ctx.font = '9px sans-serif';
-  ctx.textAlign = 'center';
+  ctx.fillStyle = '#a0aec0'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
   for (let i = 0; i < days.length; i += 5) {
-    const x = padL + (i / (days.length - 1)) * chartW;
-    ctx.fillText(days[i].day, x, H - 5);
+    ctx.fillText(days[i].day, padL + (i / (days.length - 1)) * chartW, H - 5);
   }
-
-  // Line
-  ctx.beginPath();
-  ctx.strokeStyle = '#667eea';
-  ctx.lineWidth = 2.5;
-  ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.strokeStyle = '#667eea'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
   days.forEach((p, i) => {
     const x = padL + (i / (days.length - 1)) * chartW;
     const y = padT + chartH - (p.pct / 100) * chartH;
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   });
   ctx.stroke();
-
-  // Fill
-  ctx.lineTo(padL + chartW, padT + chartH);
-  ctx.lineTo(padL, padT + chartH);
-  ctx.closePath();
+  ctx.lineTo(padL + chartW, padT + chartH); ctx.lineTo(padL, padT + chartH); ctx.closePath();
   const grad = ctx.createLinearGradient(0, padT, 0, padT + chartH);
-  grad.addColorStop(0, 'rgba(102,126,234,0.3)');
-  grad.addColorStop(1, 'rgba(102,126,234,0.02)');
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  // Dots
+  grad.addColorStop(0, 'rgba(102,126,234,0.3)'); grad.addColorStop(1, 'rgba(102,126,234,0.02)');
+  ctx.fillStyle = grad; ctx.fill();
   days.forEach((p, i) => {
     if (p.pct > 0) {
       const x = padL + (i / (days.length - 1)) * chartW;
       const y = padT + chartH - (p.pct / 100) * chartH;
-      ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = '#667eea';
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = '#667eea'; ctx.fill();
     }
   });
 }
 
-// Manage
 function renderManage() {
   const exercises = getExercises();
-  const list = document.getElementById('manageList');
-  list.innerHTML = exercises.map((ex, i) =>
+  document.getElementById('manageList').innerHTML = exercises.map((ex, i) =>
     '<div class="manage-item">' +
     '<div class="manage-info"><div class="manage-name">' + (i+1) + '. ' + ex.name + '</div>' +
     '<div class="manage-spec">' + ex.spec + '</div></div>' +
     '<button class="delete-btn" onclick="showDeleteModal(' + ex.id + ',\'' + ex.name.replace(/'/g,"\\'") + '\')">刪除</button></div>'
   ).join('');
+  // 初始化補填日期為今天
+  const fillDateEl = document.getElementById('fillDate');
+  if (fillDateEl && !fillDateEl.value) fillDateEl.value = getToday();
 }
 
 function addExercise() {
@@ -642,12 +623,11 @@ function addExercise() {
   if (!spec) { alert('請輸入規格說明'); return; }
   const exercises = getExercises();
   const maxId = exercises.reduce((max, ex) => Math.max(max, ex.id), 0);
-  exercises.push({ id: maxId + 1, name: name, spec: spec });
+  exercises.push({ id: maxId + 1, name, spec });
   saveExercises(exercises);
   document.getElementById('newExName').value = '';
   document.getElementById('newExSpec').value = '';
-  renderManage();
-  renderExercises();
+  renderManage(); renderExercises();
 }
 
 function showDeleteModal(id, name) {
@@ -655,20 +635,112 @@ function showDeleteModal(id, name) {
   document.getElementById('deleteModalText').textContent = '確定要刪除「' + name + '」嗎？';
   document.getElementById('deleteModal').classList.add('show');
 }
-
 function closeDeleteModal() {
   document.getElementById('deleteModal').classList.remove('show');
   deleteTargetId = null;
 }
-
 function confirmDelete() {
   if (deleteTargetId === null) return;
-  let exercises = getExercises();
-  exercises = exercises.filter(ex => ex.id !== deleteTargetId);
+  let exercises = getExercises().filter(ex => ex.id !== deleteTargetId);
   saveExercises(exercises);
-  closeDeleteModal();
-  renderManage();
+  closeDeleteModal(); renderManage(); renderExercises();
+}
+
+/* ===== 補填歷史資料功能 ===== */
+function loadFillDate() {
+  const dateVal = document.getElementById('fillDate').value;
+  if (!dateVal) { alert('請選擇日期'); return; }
+  const exercises = getExercises();
+  const data = getData();
+  const dayData = data[dateVal] || {};
+  const listEl = document.getElementById('fillExercisesList');
+  const statusEl = document.getElementById('fillStatus');
+  statusEl.className = 'fill-status';
+  statusEl.textContent = '';
+
+  if (exercises.length === 0) {
+    listEl.innerHTML = '<div style="color:#718096;font-size:0.85rem;padding:10px 0;">目前沒有設定訓練動作</div>';
+    document.getElementById('saveHistoryBtn').style.display = 'none';
+    return;
+  }
+
+  // 顯示日期標題
+  const d = new Date(dateVal + 'T00:00:00');
+  const weekdays = ['日','一','二','三','四','五','六'];
+  const dateLabel = (d.getMonth()+1) + '月' + d.getDate() + '日 (' + weekdays[d.getDay()] + ')';
+  const existing = Object.keys(dayData).length > 0;
+
+  listEl.innerHTML = '<div style="font-size:0.8rem;color:#718096;margin-bottom:10px;">' +
+    dateLabel + (existing ? ' ・ <span style="color:#667eea">已有紀錄，可修改</span>' : ' ・ 尚無紀錄') + '</div>' +
+    exercises.map(ex => {
+      const isDone = dayData[ex.id] === true;
+      return '<div class="fill-ex-item">' +
+        '<div><div class="fill-ex-name">' + ex.name + '</div>' +
+        '<div class="fill-ex-spec">' + ex.spec + '</div></div>' +
+        '<div class="fill-toggle">' +
+        '<button id="btn-done-' + ex.id + '" class="' + (isDone ? 'selected-done' : '') + '" onclick="setFillToggle(' + ex.id + ', true)">✅ 完成</button>' +
+        '<button id="btn-miss-' + ex.id + '" class="' + (!isDone && existing ? 'selected-miss' : '') + '" onclick="setFillToggle(' + ex.id + ', false)">❌ 未做</button>' +
+        '</div></div>';
+    }).join('');
+
+  document.getElementById('saveHistoryBtn').style.display = 'block';
+}
+
+function setFillToggle(exId, done) {
+  const doneBtn = document.getElementById('btn-done-' + exId);
+  const missBtn = document.getElementById('btn-miss-' + exId);
+  if (done) {
+    doneBtn.className = 'selected-done';
+    missBtn.className = '';
+  } else {
+    doneBtn.className = '';
+    missBtn.className = 'selected-miss';
+  }
+}
+
+function saveHistoryData() {
+  const dateVal = document.getElementById('fillDate').value;
+  if (!dateVal) { alert('請先選擇日期並載入'); return; }
+  const exercises = getExercises();
+  const data = getData();
+  if (!data[dateVal]) data[dateVal] = {};
+
+  let savedCount = 0;
+  exercises.forEach(ex => {
+    const doneBtn = document.getElementById('btn-done-' + ex.id);
+    const missBtn = document.getElementById('btn-miss-' + ex.id);
+    if (!doneBtn && !missBtn) return; // 未載入
+    if (doneBtn && doneBtn.classList.contains('selected-done')) {
+      data[dateVal][ex.id] = true; savedCount++;
+    } else if (missBtn && missBtn.classList.contains('selected-miss')) {
+      data[dateVal][ex.id] = false;
+    }
+    // 若都沒選，不覆蓋
+  });
+
+  // 若整天都沒任何完成也沒未做選擇，檢查是否應刪除該日
+  const hasAny = exercises.some(ex => {
+    const dBtn = document.getElementById('btn-done-' + ex.id);
+    const mBtn = document.getElementById('btn-miss-' + ex.id);
+    return (dBtn && dBtn.classList.contains('selected-done')) ||
+           (mBtn && mBtn.classList.contains('selected-miss'));
+  });
+
+  if (!hasAny) {
+    const statusEl = document.getElementById('fillStatus');
+    statusEl.textContent = '⚠️ 請至少為一個動作選擇狀態';
+    statusEl.className = 'fill-status warning';
+    return;
+  }
+
+  saveData(data);
+  const statusEl = document.getElementById('fillStatus');
+  const d = new Date(dateVal + 'T00:00:00');
+  const weekdays = ['日','一','二','三','四','五','六'];
+  statusEl.textContent = '✅ 已儲存 ' + (d.getMonth()+1) + '/' + d.getDate() + ' (' + weekdays[d.getDay()] + ') 的訓練紀錄！';
+  statusEl.className = 'fill-status success';
   renderExercises();
+  setTimeout(() => { statusEl.className = 'fill-status'; statusEl.textContent = ''; }, 3000);
 }
 
 // Init
