@@ -24,12 +24,17 @@
   --border: #e2e8f0;
   --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
 }
+
+/* === App 風格佈局：body 佔滿全螢幕，tab-content 獨立捲動 === */
 body {
   font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
-  padding-bottom: 80px;
+  /* App 風格：固定高度，不讓 body 本身捲動 */
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   -webkit-user-select: none;
   user-select: none;
 }
@@ -39,8 +44,8 @@ body {
   padding: 20px;
   padding-top: max(20px, env(safe-area-inset-top));
   text-align: center;
-  position: sticky;
-  top: 0;
+  /* 在 flex column 中固定高度，不壓縮 */
+  flex-shrink: 0;
   z-index: 100;
 }
 .header h1 { font-size: 1.3rem; font-weight: 700; }
@@ -49,12 +54,10 @@ body {
   display: flex;
   background: var(--card);
   border-top: 1px solid var(--border);
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+  /* 固定在底部 */
+  flex-shrink: 0;
   padding-bottom: env(safe-area-inset-bottom);
+  z-index: 100;
 }
 .tab-bar button {
   flex: 1;
@@ -69,7 +72,23 @@ body {
 }
 .tab-bar button.active { color: var(--primary); font-weight: 700; }
 .tab-bar button .tab-icon { font-size: 1.3rem; display: block; margin-bottom: 2px; }
-.tab-content { display: none; padding: 16px; max-width: 500px; margin: 0 auto; }
+
+/* === 各 tab 頁面：佔滿剩餘空間，獨立捲動 === */
+.tab-content {
+  display: none;
+  flex: 1;               /* 佔滿 header 和 tab-bar 之間的空間 */
+  overflow-y: auto;      /* 在此元素內捲動，不影響 body */
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;  /* iOS 慣性滾動 */
+  padding: 16px;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 24px); /* safe area + 餘裕 */
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+  /* 修正 max-width 置中但佔滿寬度的問題 */
+  box-sizing: border-box;
+  align-self: stretch;   /* 讓 flex item 橫向佔滿 */
+}
 .tab-content.active { display: block; }
 
 /* Progress Ring */
@@ -239,12 +258,8 @@ body {
   cursor: pointer; font-family: inherit; transition: background 0.2s, color 0.2s;
   background: transparent; color: var(--text-secondary);
 }
-.fill-toggle button.selected-done {
-  background: var(--success); color: white;
-}
-.fill-toggle button.selected-miss {
-  background: var(--danger); color: white;
-}
+.fill-toggle button.selected-done { background: var(--success); color: white; }
+.fill-toggle button.selected-miss { background: var(--danger); color: white; }
 .save-history-btn {
   width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea, #764ba2);
   color: white; border: none; border-radius: 10px;
@@ -364,7 +379,6 @@ body {
     <button class="add-btn" onclick="addExercise()">新增動作</button>
   </div>
 
-  <!-- 補填歷史資料區塊 -->
   <div class="history-fill-section">
     <h3>📅 補填歷史資料</h3>
     <div class="section-desc">把之前記事本的訓練紀錄補填進來</div>
@@ -423,9 +437,9 @@ function getExercises() {
   localStorage.setItem(STORAGE_EXERCISES, JSON.stringify(DEFAULT_EXERCISES));
   return DEFAULT_EXERCISES;
 }
-function saveExercises(exercises) { localStorage.setItem(STORAGE_EXERCISES, JSON.stringify(exercises)); }
+function saveExercises(e) { localStorage.setItem(STORAGE_EXERCISES, JSON.stringify(e)); }
 function getData() { const s = localStorage.getItem(STORAGE_DATA); return s ? JSON.parse(s) : {}; }
-function saveData(data) { localStorage.setItem(STORAGE_DATA, JSON.stringify(data)); }
+function saveData(d) { localStorage.setItem(STORAGE_DATA, JSON.stringify(d)); }
 
 function getToday() {
   const d = new Date();
@@ -443,7 +457,10 @@ function getTodayDisplay() {
 }
 
 function switchTab(tabId, btn) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => {
+    t.classList.remove('active');
+    t.scrollTop = 0; /* 切換 tab 時重置捲動到頂端 */
+  });
   document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
   btn.classList.add('active');
@@ -611,7 +628,6 @@ function renderManage() {
     '<div class="manage-spec">' + ex.spec + '</div></div>' +
     '<button class="delete-btn" onclick="showDeleteModal(' + ex.id + ',\'' + ex.name.replace(/'/g,"\\'") + '\')">刪除</button></div>'
   ).join('');
-  // 初始化補填日期為今天
   const fillDateEl = document.getElementById('fillDate');
   if (fillDateEl && !fillDateEl.value) fillDateEl.value = getToday();
 }
@@ -655,8 +671,7 @@ function loadFillDate() {
   const dayData = data[dateVal] || {};
   const listEl = document.getElementById('fillExercisesList');
   const statusEl = document.getElementById('fillStatus');
-  statusEl.className = 'fill-status';
-  statusEl.textContent = '';
+  statusEl.className = 'fill-status'; statusEl.textContent = '';
 
   if (exercises.length === 0) {
     listEl.innerHTML = '<div style="color:#718096;font-size:0.85rem;padding:10px 0;">目前沒有設定訓練動作</div>';
@@ -664,7 +679,6 @@ function loadFillDate() {
     return;
   }
 
-  // 顯示日期標題
   const d = new Date(dateVal + 'T00:00:00');
   const weekdays = ['日','一','二','三','四','五','六'];
   const dateLabel = (d.getMonth()+1) + '月' + d.getDate() + '日 (' + weekdays[d.getDay()] + ')';
@@ -684,18 +698,22 @@ function loadFillDate() {
     }).join('');
 
   document.getElementById('saveHistoryBtn').style.display = 'block';
+
+  /* 載入後自動捲動到補填區塊，讓用戶看到內容 */
+  setTimeout(() => {
+    const fillSection = document.querySelector('.history-fill-section');
+    const tabManage = document.getElementById('tabManage');
+    if (fillSection && tabManage) {
+      tabManage.scrollTo({ top: fillSection.offsetTop - 16, behavior: 'smooth' });
+    }
+  }, 50);
 }
 
 function setFillToggle(exId, done) {
   const doneBtn = document.getElementById('btn-done-' + exId);
   const missBtn = document.getElementById('btn-miss-' + exId);
-  if (done) {
-    doneBtn.className = 'selected-done';
-    missBtn.className = '';
-  } else {
-    doneBtn.className = '';
-    missBtn.className = 'selected-miss';
-  }
+  if (done) { doneBtn.className = 'selected-done'; missBtn.className = ''; }
+  else { doneBtn.className = ''; missBtn.className = 'selected-miss'; }
 }
 
 function saveHistoryData() {
@@ -705,20 +723,6 @@ function saveHistoryData() {
   const data = getData();
   if (!data[dateVal]) data[dateVal] = {};
 
-  let savedCount = 0;
-  exercises.forEach(ex => {
-    const doneBtn = document.getElementById('btn-done-' + ex.id);
-    const missBtn = document.getElementById('btn-miss-' + ex.id);
-    if (!doneBtn && !missBtn) return; // 未載入
-    if (doneBtn && doneBtn.classList.contains('selected-done')) {
-      data[dateVal][ex.id] = true; savedCount++;
-    } else if (missBtn && missBtn.classList.contains('selected-miss')) {
-      data[dateVal][ex.id] = false;
-    }
-    // 若都沒選，不覆蓋
-  });
-
-  // 若整天都沒任何完成也沒未做選擇，檢查是否應刪除該日
   const hasAny = exercises.some(ex => {
     const dBtn = document.getElementById('btn-done-' + ex.id);
     const mBtn = document.getElementById('btn-miss-' + ex.id);
@@ -733,6 +737,14 @@ function saveHistoryData() {
     return;
   }
 
+  exercises.forEach(ex => {
+    const doneBtn = document.getElementById('btn-done-' + ex.id);
+    const missBtn = document.getElementById('btn-miss-' + ex.id);
+    if (!doneBtn && !missBtn) return;
+    if (doneBtn && doneBtn.classList.contains('selected-done')) { data[dateVal][ex.id] = true; }
+    else if (missBtn && missBtn.classList.contains('selected-miss')) { data[dateVal][ex.id] = false; }
+  });
+
   saveData(data);
   const statusEl = document.getElementById('fillStatus');
   const d = new Date(dateVal + 'T00:00:00');
@@ -740,6 +752,16 @@ function saveHistoryData() {
   statusEl.textContent = '✅ 已儲存 ' + (d.getMonth()+1) + '/' + d.getDate() + ' (' + weekdays[d.getDay()] + ') 的訓練紀錄！';
   statusEl.className = 'fill-status success';
   renderExercises();
+
+  /* 儲存後捲動到狀態訊息 */
+  setTimeout(() => {
+    const statusEl2 = document.getElementById('fillStatus');
+    const tabManage = document.getElementById('tabManage');
+    if (statusEl2 && tabManage) {
+      tabManage.scrollTo({ top: tabManage.scrollHeight, behavior: 'smooth' });
+    }
+  }, 50);
+
   setTimeout(() => { statusEl.className = 'fill-status'; statusEl.textContent = ''; }, 3000);
 }
 
