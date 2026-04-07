@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="復健訓練">
+<meta name="theme-color" content="#667eea">
+<title>每日復健訓練</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #667eea;
+  --primary-dark: #5a67d8;
+  --success: #48bb78;
+  --danger: #fc8181;
+  --warning: #f6ad55;
+  --bg: #f7fafc;
+  --card: #ffffff;
+  --text: #2d3748;
+  --text-secondary: #718096;
+  --border: #e2e8f0;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+body {
+  font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 80px;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.header {
+  background: linear-gradient(135deg, var(--primary), #764ba2);
+  color: white;
+  padding: 20px;
+  padding-top: max(20px, env(safe-area-inset-top));
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 { font-size: 1.3rem; font-weight: 700; }
+.header .date { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; }
+.tab-bar {
+  display: flex;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tab-bar button {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: none;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s;
+  font-family: inherit;
+}
+.tab-bar button.active { color: var(--primary); font-weight: 700; }
+.tab-bar button .tab-icon { font-size: 1.3rem; display: block; margin-bottom: 2px; }
+.tab-content { display: none; padding: 16px; max-width: 500px; margin: 0 auto; }
+.tab-content.active { display: block; }
+
+/* Progress Ring */
+.progress-container { text-align: center; margin: 20px 0; }
+.progress-ring-wrapper { position: relative; display: inline-block; }
+.progress-ring { transform: rotate(-90deg); }
+.progress-ring-bg { fill: none; stroke: var(--border); stroke-width: 8; }
+.progress-ring-fill { fill: none; stroke: var(--success); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+.progress-text {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem; font-weight: 700; color: var(--text);
+}
+.progress-label { font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; }
+
+/* Streak Badge */
+.streak-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white; padding: 6px 16px; border-radius: 20px;
+  font-weight: 700; font-size: 0.9rem; margin-top: 12px;
+}
+
+/* Exercise Cards */
+.exercise-card {
+  background: var(--card); border-radius: 16px; padding: 16px;
+  margin-bottom: 12px; box-shadow: var(--shadow);
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+  border: 2px solid transparent;
+}
+.exercise-card:active { transform: scale(0.98); }
+.exercise-card.completed { border-color: var(--success); background: #f0fff4; }
+.exercise-card .check-circle {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 3px solid var(--border); display: flex;
+  align-items: center; justify-content: center;
+  transition: all 0.3s; flex-shrink: 0;
+}
+.exercise-card.completed .check-circle {
+  background: var(--success); border-color: var(--success);
+}
+.exercise-card .check-circle svg { opacity: 0; transition: opacity 0.3s; }
+.exercise-card.completed .check-circle svg { opacity: 1; }
+.exercise-info { flex: 1; }
+.exercise-info .name { font-weight: 700; font-size: 1rem; }
+.exercise-info .spec { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+.exercise-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+}
+
+/* Statistics */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--card); border-radius: 12px;
+  padding: 16px 10px; text-align: center;
+  box-shadow: var(--shadow);
+}
+.stat-card .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+.stat-card .stat-label { font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px; }
+
+/* Chart */
+.chart-container {
+  background: var(--card); border-radius: 16px;
+  padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px;
+}
+.chart-title { font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; }
+.chart-canvas { width: 100%; height: 200px; }
+
+/* History List */
+.history-section { margin-top: 20px; }
+.history-title { font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; }
+.history-item {
+  background: var(--card); border-radius: 12px;
+  padding: 14px; margin-bottom: 8px; box-shadow: var(--shadow);
+}
+.history-item .history-date { font-weight: 700; font-size: 0.85rem; }
+.history-item .history-rate { font-size: 0.8rem; color: var(--text-secondary); }
+.history-item .history-exercises {
+  display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;
+}
+.history-item .history-ex {
+  font-size: 0.75rem; padding: 3px 8px; border-radius: 8px;
+}
+.history-item .history-ex.done { background: #c6f6d5; color: #276749; }
+.history-item .history-ex.missed { background: #fed7d7; color: #9b2c2c; }
+
+/* Manage Page */
+.manage-section { margin-top: 10px; }
+.manage-title { font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; }
+.manage-item {
+  background: var(--card); border-radius: 12px;
+  padding: 14px; margin-bottom: 8px; box-shadow: var(--shadow);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.manage-item .manage-info { flex: 1; }
+.manage-item .manage-name { font-weight: 700; font-size: 0.9rem; }
+.manage-item .manage-spec { font-size: 0.8rem; color: var(--text-secondary); }
+.manage-item .delete-btn {
+  background: var(--danger); color: white; border: none;
+  border-radius: 8px; padding: 6px 12px; font-size: 0.8rem;
+  cursor: pointer; font-family: inherit;
+}
+.add-form {
+  background: var(--card); border-radius: 16px;
+  padding: 20px; box-shadow: var(--shadow); margin-top: 16px;
+}
+.add-form h3 { font-size: 0.95rem; margin-bottom: 12px; }
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px; }
+.form-group input {
+  width: 100%; padding: 10px 12px; border: 2px solid var(--border);
+  border-radius: 10px; font-size: 0.9rem; font-family: inherit;
+  transition: border-color 0.2s;
+}
+.form-group input:focus { outline: none; border-color: var(--primary); }
+.add-btn {
+  width: 100%; padding: 12px; background: var(--primary);
+  color: white; border: none; border-radius: 10px;
+  font-size: 0.95rem; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: background 0.2s;
+}
+.add-btn:hover { background: var(--primary-dark); }
+
+/* Confetti */
+.confetti-container {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 9999; overflow: hidden;
+}
+.confetti {
+  position: absolute; width: 10px; height: 10px;
+  top: -10px; opacity: 1;
+  animation: confetti-fall 3s ease-out forwards;
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center; padding: 40px 20px; color: var(--text-secondary);
+}
+.empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+/* Modal */
+.modal-overlay {
+  display: none; position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%; background: rgba(0,0,0,0.5);
+  z-index: 200; align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--card); border-radius: 16px;
+  padding: 24px; margin: 20px; max-width: 320px; width: 100%;
+  text-align: center;
+}
+.modal h3 { margin-bottom: 8px; }
+.modal p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px; }
+.modal-buttons { display: flex; gap: 10px; }
+.modal-buttons button {
+  flex: 1; padding: 10px; border: none; border-radius: 10px;
+  font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.modal-cancel { background: var(--border); color: var(--text); }
+.modal-confirm { background: var(--danger); color: white; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏋️ 每日復健訓練</h1>
+  <div class="date" id="headerDate"></div>
+</div>
+
+<div id="tabToday" class="tab-content active">
+  <div class="progress-container">
+    <div class="progress-ring-wrapper">
+      <svg class="progress-ring" width="140" height="140">
+        <circle class="progress-ring-bg" cx="70" cy="70" r="60"/>
+        <circle class="progress-ring-fill" id="progressRing" cx="70" cy="70" r="60"
+          stroke-dasharray="376.99" stroke-dashoffset="376.99"/>
+      </svg>
+      <div class="progress-text" id="progressText">0%</div>
+    </div>
+    <div class="progress-label">今日完成率</div>
+    <div id="streakBadge" class="streak-badge" style="display:none;">
+      <span>🔥</span><span id="streakCount">0</span><span>天連續全勤</span>
+    </div>
+  </div>
+  <div id="exerciseList"></div>
+</div>
+
+<div id="tabHistory" class="tab-content">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="stat7day">0%</div>
+      <div class="stat-label">近7天平均</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statStreak">0</div>
+      <div class="stat-label">連續全勤</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-label">累計天數</div>
+    </div>
+  </div>
+  <div class="chart-container">
+    <div class="chart-title">📊 近30天完成率趨勢</div>
+    <canvas id="chartCanvas" class="chart-canvas"></canvas>
+  </div>
+  <div class="history-section">
+    <div class="history-title">📋 每日明細</div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<div id="tabManage" class="tab-content">
+  <div class="manage-section">
+    <div class="manage-title">📝 目前訓練動作</div>
+    <div id="manageList"></div>
+  </div>
+  <div class="add-form">
+    <h3>➕ 新增動作</h3>
+    <div class="form-group">
+      <label>動作名稱</label>
+      <input type="text" id="newExName" placeholder="例：橋式">
+    </div>
+    <div class="form-group">
+      <label>規格說明</label>
+      <input type="text" id="newExSpec" placeholder="例：10下 × 3組">
+    </div>
+    <button class="add-btn" onclick="addExercise()">新增動作</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="active" onclick="switchTab('tabToday', this)">
+    <span class="tab-icon">🏋️</span>今日
+  </button>
+  <button onclick="switchTab('tabHistory', this)">
+    <span class="tab-icon">📊</span>歷史
+  </button>
+  <button onclick="switchTab('tabManage', this)">
+    <span class="tab-icon">⚙️</span>管理
+  </button>
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <h3>確認刪除</h3>
+    <p id="deleteModalText">確定要刪除這個動作嗎？</p>
+    <div class="modal-buttons">
+      <button class="modal-cancel" onclick="closeDeleteModal()">取消</button>
+      <button class="modal-confirm" onclick="confirmDelete()">刪除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_DATA = 'rehab-tracker-data';
+const STORAGE_EXERCISES = 'rehab-tracker-exercises';
+
+const DEFAULT_EXERCISES = [
+  { id: 1, name: '側躺髖內轉', spec: '10下 × 3組' },
+  { id: 2, name: '微蹲單腳站', spec: '兩腳都練，10個呼吸 × 5組' },
+  { id: 3, name: '死蟲', spec: '10個呼吸 × 5組' },
+  { id: 4, name: '呼吸訓練', spec: '側倒10個 + 擺正10個呼吸，連續3組' }
+];
+
+let deleteTargetId = null;
+
+function getExercises() {
+  const saved = localStorage.getItem(STORAGE_EXERCISES);
+  if (saved) return JSON.parse(saved);
+  localStorage.setItem(STORAGE_EXERCISES, JSON.stringify(DEFAULT_EXERCISES));
+  return DEFAULT_EXERCISES;
+}
+
+function saveExercises(exercises) {
+  localStorage.setItem(STORAGE_EXERCISES, JSON.stringify(exercises));
+}
+
+function getData() {
+  const saved = localStorage.getItem(STORAGE_DATA);
+  return saved ? JSON.parse(saved) : {};
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_DATA, JSON.stringify(data));
+}
+
+function getToday() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  const weekdays = ['日','一','二','三','四','五','六'];
+  return m + '/' + day + ' (' + weekdays[d.getDay()] + ')';
+}
+
+function getTodayDisplay() {
+  const d = new Date();
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  const weekdays = ['日','一','二','三','四','五','六'];
+  return d.getFullYear() + '年' + m + '月' + day + '日 ' + weekdays[d.getDay()];
+}
+
+// Tab switching
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  btn.classList.add('active');
+  if (tabId === 'tabHistory') renderHistory();
+  if (tabId === 'tabManage') renderManage();
+}
+
+// Render exercises
+function renderExercises() {
+  const exercises = getExercises();
+  const data = getData();
+  const today = getToday();
+  const todayData = data[today] || {};
+  const list = document.getElementById('exerciseList');
+
+  list.innerHTML = exercises.map((ex, i) => {
+    const done = todayData[ex.id] === true;
+    return '<div class="exercise-card ' + (done ? 'completed' : '') + '" onclick="toggleExercise(' + ex.id + ')">' +
+      '<div class="exercise-num">' + (i+1) + '</div>' +
+      '<div class="check-circle"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+      '<div class="exercise-info"><div class="name">' + ex.name + '</div><div class="spec">' + ex.spec + '</div></div></div>';
+  }).join('');
+
+  updateProgress(exercises, todayData);
+}
+
+function toggleExercise(exId) {
+  const data = getData();
+  const today = getToday();
+  if (!data[today]) data[today] = {};
+  data[today][exId] = !data[today][exId];
+  saveData(data);
+  renderExercises();
+
+  const exercises = getExercises();
+  const allDone = exercises.every(ex => data[today][ex.id] === true);
+  if (allDone) triggerConfetti();
+}
+
+function updateProgress(exercises, todayData) {
+  const total = exercises.length;
+  const done = exercises.filter(ex => todayData[ex.id] === true).length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  const circle = document.getElementById('progressRing');
+  const circumference = 2 * Math.PI * 60;
+  const offset = circumference - (pct / 100) * circumference;
+  circle.style.strokeDashoffset = offset;
+
+  document.getElementById('progressText').textContent = pct + '%';
+
+  const streak = calculateStreak();
+  const badge = document.getElementById('streakBadge');
+  if (streak > 0) {
+    badge.style.display = 'inline-flex';
+    document.getElementById('streakCount').textContent = streak;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function calculateStreak() {
+  const data = getData();
+  const exercises = getExercises();
+  let streak = 0;
+  const d = new Date();
+
+  for (let i = 0; i < 365; i++) {
+    const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    const dayData = data[dateStr];
+    if (dayData && exercises.every(ex => dayData[ex.id] === true)) {
+      streak++;
+    } else {
+      if (i === 0) { d.setDate(d.getDate() - 1); continue; }
+      break;
+    }
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+}
+
+// Confetti
+function triggerConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#667eea','#48bb78','#f6ad55','#fc8181','#b794f4','#63b3ed'];
+  for (let i = 0; i < 50; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = Math.random() * 100 + '%';
+    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+    confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+    const size = 6 + Math.random() * 8;
+    confetti.style.width = size + 'px';
+    confetti.style.height = size + 'px';
+    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    container.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 4000);
+  }
+}
+
+// History
+function renderHistory() {
+  const data = getData();
+  const exercises = getExercises();
+  const dates = Object.keys(data).sort().reverse();
+
+  // Stats
+  const last7 = dates.slice(0, 7);
+  let total7 = 0;
+  last7.forEach(d => {
+    const dayData = data[d];
+    const done = exercises.filter(ex => dayData[ex.id] === true).length;
+    total7 += exercises.length > 0 ? (done / exercises.length) * 100 : 0;
+  });
+  document.getElementById('stat7day').textContent = last7.length > 0 ? Math.round(total7 / last7.length) + '%' : '0%';
+  document.getElementById('statStreak').textContent = calculateStreak();
+  document.getElementById('statTotal').textContent = dates.length;
+
+  // Chart
+  drawChart(data, exercises);
+
+  // History list
+  const histList = document.getElementById('historyList');
+  if (dates.length === 0) {
+    histList.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>還沒有任何紀錄</div></div>';
+    return;
+  }
+
+  histList.innerHTML = dates.slice(0, 30).map(dateStr => {
+    const dayData = data[dateStr];
+    const done = exercises.filter(ex => dayData[ex.id] === true).length;
+    const pct = exercises.length > 0 ? Math.round((done / exercises.length) * 100) : 0;
+    return '<div class="history-item">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+      '<div class="history-date">' + formatDate(dateStr) + '</div>' +
+      '<div class="history-rate">' + pct + '%</div></div>' +
+      '<div class="history-exercises">' +
+      exercises.map(ex => '<span class="history-ex ' + (dayData[ex.id] ? 'done' : 'missed') + '">' +
+        (dayData[ex.id] ? '✅' : '❌') + ' ' + ex.name + '</span>').join('') +
+      '</div></div>';
+  }).join('');
+}
+
+function drawChart(data, exercises) {
+  const canvas = document.getElementById('chartCanvas');
+  const ctx = canvas.getContext('2d');
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * 2;
+  canvas.height = rect.height * 2;
+  ctx.scale(2, 2);
+  const W = rect.width;
+  const H = rect.height;
+
+  ctx.clearRect(0, 0, W, H);
+
+  const days = [];
+  const d = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const dd = new Date(d);
+    dd.setDate(dd.getDate() - i);
+    const ds = dd.getFullYear() + '-' + String(dd.getMonth()+1).padStart(2,'0') + '-' + String(dd.getDate()).padStart(2,'0');
+    const dayData = data[ds] || {};
+    const done = exercises.filter(ex => dayData[ex.id] === true).length;
+    const pct = exercises.length > 0 ? (done / exercises.length) * 100 : 0;
+    days.push({ date: ds, pct: pct, day: dd.getDate() });
+  }
+
+  const padL = 35, padR = 10, padT = 10, padB = 30;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+
+  // Grid lines
+  ctx.strokeStyle = '#edf2f7';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + chartH - (i / 4) * chartH;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+    ctx.fillStyle = '#a0aec0';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText((i * 25) + '%', padL - 5, y + 3);
+  }
+
+  // X axis labels
+  ctx.fillStyle = '#a0aec0';
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'center';
+  for (let i = 0; i < days.length; i += 5) {
+    const x = padL + (i / (days.length - 1)) * chartW;
+    ctx.fillText(days[i].day, x, H - 5);
+  }
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = '#667eea';
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  days.forEach((p, i) => {
+    const x = padL + (i / (days.length - 1)) * chartW;
+    const y = padT + chartH - (p.pct / 100) * chartH;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Fill
+  ctx.lineTo(padL + chartW, padT + chartH);
+  ctx.lineTo(padL, padT + chartH);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, padT, 0, padT + chartH);
+  grad.addColorStop(0, 'rgba(102,126,234,0.3)');
+  grad.addColorStop(1, 'rgba(102,126,234,0.02)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Dots
+  days.forEach((p, i) => {
+    if (p.pct > 0) {
+      const x = padL + (i / (days.length - 1)) * chartW;
+      const y = padT + chartH - (p.pct / 100) * chartH;
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = '#667eea';
+      ctx.fill();
+    }
+  });
+}
+
+// Manage
+function renderManage() {
+  const exercises = getExercises();
+  const list = document.getElementById('manageList');
+  list.innerHTML = exercises.map((ex, i) =>
+    '<div class="manage-item">' +
+    '<div class="manage-info"><div class="manage-name">' + (i+1) + '. ' + ex.name + '</div>' +
+    '<div class="manage-spec">' + ex.spec + '</div></div>' +
+    '<button class="delete-btn" onclick="showDeleteModal(' + ex.id + ',\'' + ex.name.replace(/'/g,"\\'") + '\')">刪除</button></div>'
+  ).join('');
+}
+
+function addExercise() {
+  const name = document.getElementById('newExName').value.trim();
+  const spec = document.getElementById('newExSpec').value.trim();
+  if (!name) { alert('請輸入動作名稱'); return; }
+  if (!spec) { alert('請輸入規格說明'); return; }
+  const exercises = getExercises();
+  const maxId = exercises.reduce((max, ex) => Math.max(max, ex.id), 0);
+  exercises.push({ id: maxId + 1, name: name, spec: spec });
+  saveExercises(exercises);
+  document.getElementById('newExName').value = '';
+  document.getElementById('newExSpec').value = '';
+  renderManage();
+  renderExercises();
+}
+
+function showDeleteModal(id, name) {
+  deleteTargetId = id;
+  document.getElementById('deleteModalText').textContent = '確定要刪除「' + name + '」嗎？';
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('show');
+  deleteTargetId = null;
+}
+
+function confirmDelete() {
+  if (deleteTargetId === null) return;
+  let exercises = getExercises();
+  exercises = exercises.filter(ex => ex.id !== deleteTargetId);
+  saveExercises(exercises);
+  closeDeleteModal();
+  renderManage();
+  renderExercises();
+}
+
+// Init
+document.getElementById('headerDate').textContent = getTodayDisplay();
+renderExercises();
+</script>
+</body>
+</html>
