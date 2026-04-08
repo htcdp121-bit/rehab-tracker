@@ -247,6 +247,7 @@ function saveData(d){localStorage.setItem(STORAGE_DATA,JSON.stringify(d));}
 function getToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function formatDate(ds){const d=new Date(ds+'T00:00:00');const w=['日','一','二','三','四','五','六'];return(d.getMonth()+1)+'/'+d.getDate()+' (週'+w[d.getDay()]+')';}
 function getTodayDisplay(){const d=new Date();const w=['日','一','二','三','四','五','六'];return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 '+w[d.getDay()];}
+function esc(s){return s.replace(/'/g,"&#39;");}
 
 function switchTab(tabId,btn){
   document.querySelectorAll('.tab-content').forEach(t=>{t.classList.remove('active');t.scrollTop=0;});
@@ -321,7 +322,7 @@ function renderHistory(){
   histList.innerHTML=dates.slice(0,30).map(ds=>{
     const dd=data[ds];const done=exercises.filter(ex=>dd[ex.id]===true).length;
     const pct=exercises.length>0?Math.round((done/exercises.length)*100):0;
-    return '<div class="history-item"><div class="history-item-header"><div class="history-date">'+formatDate(ds)+'</div><div style="display:flex;align-items:center;gap:8px;"><div class="history-rate">'+pct+'%</div><div class="history-item-actions"><button class="edit-history-btn" onclick="openEditHistoryModal(''+ds+'')">✏️ 修改</button><button class="delete-history-btn" onclick="openDeleteHistoryModal(''+ds+'')">🗑️ 刪除</button></div></div></div><div class="history-exercises">'+exercises.map(ex=>'<span class="history-ex '+(dd[ex.id]?'done':'missed')+'">'+(dd[ex.id]?'✅':'❌')+' '+ex.name+'</span>').join('')+'</div></div>';
+    return '<div class="history-item"><div class="history-item-header"><div class="history-date">'+formatDate(ds)+'</div><div style="display:flex;align-items:center;gap:8px;"><div class="history-rate">'+pct+'%</div><div class="history-item-actions"><button class="edit-history-btn" onclick="openEditHistoryModal('+JSON.stringify(ds)+')">✏️ 修改</button><button class="delete-history-btn" onclick="openDeleteHistoryModal('+JSON.stringify(ds)+')">🗑️ 刪除</button></div></div></div><div class="history-exercises">'+exercises.map(ex=>'<span class="history-ex '+(dd[ex.id]?'done':'missed')+'">'+(dd[ex.id]?'✅':'❌')+' '+ex.name+'</span>').join('')+'</div></div>';
   }).join('');
 }
 
@@ -345,7 +346,7 @@ function drawChart(data,exercises){
 
 function renderManage(){
   const exercises=getExercises();
-  document.getElementById('manageList').innerHTML=exercises.map((ex,i)=>'<div class="manage-item"><div class="manage-info"><div class="manage-name">'+(i+1)+'. '+ex.name+'</div><div class="manage-spec">'+ex.spec+'</div></div><button class="delete-btn" onclick="showDeleteModal('+ex.id+',''+ex.name.replace(/'/g,"\'")+'')">刪除</button></div>').join('');
+  document.getElementById('manageList').innerHTML=exercises.map((ex,i)=>'<div class="manage-item"><div class="manage-info"><div class="manage-name">'+(i+1)+'. '+ex.name+'</div><div class="manage-spec">'+ex.spec+'</div></div><button class="delete-btn" onclick="showDeleteModal('+ex.id+','+JSON.stringify(ex.name)+')">刪除</button></div>').join('');
   const fillDateEl=document.getElementById('fillDate');
   if(fillDateEl&&!fillDateEl.value)fillDateEl.value=getToday();
 }
