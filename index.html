@@ -10,306 +10,135 @@
 <title>每日復健訓練</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
-  --primary: #667eea;
-  --primary-dark: #5a67d8;
-  --success: #48bb78;
-  --danger: #fc8181;
-  --warning: #f6ad55;
-  --bg: #f7fafc;
-  --card: #ffffff;
-  --text: #2d3748;
-  --text-secondary: #718096;
-  --border: #e2e8f0;
-  --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --primary: #667eea; --primary-dark: #5a67d8;
+  --success: #48bb78; --danger: #fc8181; --warning: #f6ad55;
+  --bg: #f7f8fc; --card: #ffffff; --text: #2d3748; --text-secondary: #718096;
+  --border: #e2e8f0; --shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
-
-/* === App 風格佈局：body 佔滿全螢幕，tab-content 獨立捲動 === */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body {
-  font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  height: 100dvh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  -webkit-user-select: none;
-  user-select: none;
+  font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text);
+  height: 100dvh; overflow: hidden; display: flex; flex-direction: column;
 }
 .header {
-  background: linear-gradient(135deg, var(--primary), #764ba2);
-  color: white;
-  padding: 20px;
-  padding-top: max(20px, env(safe-area-inset-top));
-  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white; padding: 16px 20px 12px;
+  padding-top: calc(env(safe-area-inset-top) + 16px);
   flex-shrink: 0;
-  z-index: 100;
 }
-.header h1 { font-size: 1.3rem; font-weight: 700; }
-.header .date { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; }
+.header h1 { font-size: 1.1rem; font-weight: 700; }
+.header .date { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
 .tab-bar {
-  display: flex;
-  background: var(--card);
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
+  display: flex; background: var(--card);
+  border-top: 1px solid var(--border); flex-shrink: 0;
   padding-bottom: env(safe-area-inset-bottom);
-  z-index: 100;
 }
 .tab-bar button {
-  flex: 1;
-  padding: 10px 0;
-  border: none;
-  background: none;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  cursor: pointer;
+  flex: 1; padding: 10px 0; border: none; background: transparent;
+  color: var(--text-secondary); font-size: 0.7rem; font-weight: 500;
+  cursor: pointer; font-family: inherit; display: flex;
+  flex-direction: column; align-items: center; gap: 2px;
   transition: color 0.2s;
-  font-family: inherit;
 }
-.tab-bar button.active { color: var(--primary); font-weight: 700; }
-.tab-bar button .tab-icon { font-size: 1.3rem; display: block; margin-bottom: 2px; }
-
-/* === 各 tab 頁面：佔滿剩餘空間，獨立捲動 === */
-.tab-content {
-  display: none;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  padding: 16px;
-  /* 足夠的底部留白，確保最後一個元素不被 tab-bar 遮住 */
-  padding-bottom: calc(env(safe-area-inset-bottom) + 100px);
-  max-width: 500px;
-  width: 100%;
-  margin: 0 auto;
-  box-sizing: border-box;
-  align-self: stretch;
-}
+.tab-bar button.active { color: var(--primary); }
+.tab-icon { font-size: 1.2rem; }
+.tab-content { display: none; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; padding-bottom: calc(env(safe-area-inset-bottom) + 100px); }
 .tab-content.active { display: block; }
-
-/* Progress Ring */
-.progress-container { text-align: center; margin: 20px 0; }
-.progress-ring-wrapper { position: relative; display: inline-block; }
+.progress-container { display: flex; flex-direction: column; align-items: center; padding: 24px 0 16px; }
+.progress-ring-wrapper { position: relative; display: inline-flex; align-items: center; justify-content: center; }
 .progress-ring { transform: rotate(-90deg); }
 .progress-ring-bg { fill: none; stroke: var(--border); stroke-width: 8; }
-.progress-ring-fill { fill: none; stroke: var(--success); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
-.progress-text {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2rem; font-weight: 700; color: var(--text);
-}
+.progress-ring-fill { fill: none; stroke: var(--primary); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+.progress-text { position: absolute; font-size: 1.6rem; font-weight: 700; color: var(--primary); }
 .progress-label { font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; }
-
-/* Streak Badge */
-.streak-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-  color: white; padding: 6px 16px; border-radius: 20px;
-  font-weight: 700; font-size: 0.9rem; margin-top: 12px;
-}
-
-/* Exercise Cards */
-.exercise-card {
-  background: var(--card); border-radius: 16px; padding: 16px;
-  margin-bottom: 12px; box-shadow: var(--shadow);
-  display: flex; align-items: center; gap: 14px;
-  cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
-  border: 2px solid transparent;
-}
+.streak-badge { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg,#f6ad55,#f56565); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-top: 8px; }
+.exercise-card { background: var(--card); border-radius: 14px; padding: 16px; margin-bottom: 10px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; user-select: none; }
 .exercise-card:active { transform: scale(0.98); }
-.exercise-card.completed { border-color: var(--success); background: #f0fff4; }
-.exercise-card .check-circle {
-  width: 36px; height: 36px; border-radius: 50%;
-  border: 3px solid var(--border); display: flex;
-  align-items: center; justify-content: center;
-  transition: all 0.3s; flex-shrink: 0;
-}
+.exercise-card.completed { background: linear-gradient(135deg, #f0fff4, #c6f6d5); }
+.exercise-num { width: 28px; height: 28px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; }
+.exercise-card.completed .exercise-num { background: var(--success); color: white; }
+.check-circle { width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s, border-color 0.2s; }
 .exercise-card.completed .check-circle { background: var(--success); border-color: var(--success); }
-.exercise-card .check-circle svg { opacity: 0; transition: opacity 0.3s; }
-.exercise-card.completed .check-circle svg { opacity: 1; }
-.exercise-info { flex: 1; }
-.exercise-info .name { font-weight: 700; font-size: 1rem; }
-.exercise-info .spec { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
-.exercise-num {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: var(--primary); color: white;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
-}
-
-/* Statistics */
-.stats-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 12px; margin-bottom: 20px;
-}
-.stat-card {
-  background: var(--card); border-radius: 12px;
-  padding: 16px 10px; text-align: center; box-shadow: var(--shadow);
-}
+.exercise-info .name { font-weight: 700; font-size: 0.95rem; }
+.exercise-info .spec { font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px; }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card { background: var(--card); border-radius: 12px; padding: 16px 10px; text-align: center; box-shadow: var(--shadow); }
 .stat-card .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
 .stat-card .stat-label { font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px; }
-
-/* Chart */
-.chart-container {
-  background: var(--card); border-radius: 16px;
-  padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px;
-}
+.chart-container { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; }
 .chart-title { font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; }
 .chart-canvas { width: 100%; height: 200px; }
-
-/* History List */
 .history-section { margin-top: 20px; }
 .history-title { font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; }
-.history-item {
-  background: var(--card); border-radius: 12px;
-  padding: 14px; margin-bottom: 8px; box-shadow: var(--shadow);
-}
+.history-item { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 8px; box-shadow: var(--shadow); }
 .history-item .history-date { font-weight: 700; font-size: 0.85rem; }
 .history-item .history-rate { font-size: 0.8rem; color: var(--text-secondary); }
 .history-item .history-exercises { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-.history-item .history-ex {
-  font-size: 0.75rem; padding: 3px 8px; border-radius: 8px;
-}
+.history-item .history-ex { font-size: 0.75rem; padding: 3px 8px; border-radius: 8px; }
 .history-item .history-ex.done { background: #c6f6d5; color: #276749; }
 .history-item .history-ex.missed { background: #fed7d7; color: #9b2c2c; }
-
-/* Manage Page */
+.history-item-header { display: flex; justify-content: space-between; align-items: center; }
+.history-item-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.edit-history-btn { background: #ebf8ff; color: #3182ce; border: none; border-radius: 7px; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+.delete-history-btn { background: #fff5f5; color: #e53e3e; border: none; border-radius: 7px; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; font-family: inherit; }
 .manage-section { margin-top: 10px; }
 .manage-title { font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; }
-.manage-item {
-  background: var(--card); border-radius: 12px;
-  padding: 14px; margin-bottom: 8px; box-shadow: var(--shadow);
-  display: flex; align-items: center; justify-content: space-between;
-}
+.manage-item { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 8px; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: space-between; }
 .manage-item .manage-info { flex: 1; }
 .manage-item .manage-name { font-weight: 700; font-size: 0.9rem; }
 .manage-item .manage-spec { font-size: 0.8rem; color: var(--text-secondary); }
-.manage-item .delete-btn {
-  background: var(--danger); color: white; border: none;
-  border-radius: 8px; padding: 6px 12px; font-size: 0.8rem;
-  cursor: pointer; font-family: inherit;
-}
-.add-form {
-  background: var(--card); border-radius: 16px;
-  padding: 20px; box-shadow: var(--shadow); margin-top: 16px;
-}
+.manage-item .delete-btn { background: var(--danger); color: white; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer; font-family: inherit; }
+.add-form { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); margin-top: 16px; }
 .add-form h3 { font-size: 0.95rem; margin-bottom: 12px; }
 .form-group { margin-bottom: 12px; }
 .form-group label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px; }
-.form-group input {
-  width: 100%; padding: 10px 12px; border: 2px solid var(--border);
-  border-radius: 10px; font-size: 0.9rem; font-family: inherit;
-  transition: border-color 0.2s; -webkit-user-select: text; user-select: text;
-}
+.form-group input { width: 100%; padding: 10px 12px; border: 2px solid var(--border); border-radius: 10px; font-size: 0.9rem; font-family: inherit; transition: border-color 0.2s; -webkit-user-select: text; user-select: text; }
 .form-group input:focus { outline: none; border-color: var(--primary); }
-.add-btn {
-  width: 100%; padding: 12px; background: var(--primary);
-  color: white; border: none; border-radius: 10px;
-  font-size: 0.95rem; font-weight: 700; cursor: pointer;
-  font-family: inherit; transition: background 0.2s;
-}
+.add-btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.2s; }
 .add-btn:hover { background: var(--primary-dark); }
-
-/* ===== 補填歷史資料 ===== */
-.history-fill-section {
-  background: var(--card); border-radius: 16px;
-  padding: 20px; box-shadow: var(--shadow); margin-top: 16px;
-}
-.history-fill-section h3 {
-  font-size: 0.95rem; margin-bottom: 4px;
-  display: flex; align-items: center; gap: 6px;
-}
-.history-fill-section .section-desc {
-  font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 14px;
-}
-.date-input-row {
-  display: flex; gap: 8px; align-items: center; margin-bottom: 14px;
-}
-.date-input-row input[type="date"] {
-  flex: 1; padding: 10px 12px; border: 2px solid var(--border);
-  border-radius: 10px; font-size: 0.9rem; font-family: inherit;
-  transition: border-color 0.2s; -webkit-user-select: text; user-select: text;
-  background: white; color: var(--text);
-}
+.history-fill-section { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); margin-top: 16px; }
+.history-fill-section h3 { font-size: 0.95rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.history-fill-section .section-desc { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 14px; }
+.date-input-row { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; }
+.date-input-row input[type="date"] { flex: 1; padding: 10px 12px; border: 2px solid var(--border); border-radius: 10px; font-size: 0.9rem; font-family: inherit; transition: border-color 0.2s; -webkit-user-select: text; user-select: text; background: white; color: var(--text); }
 .date-input-row input[type="date"]:focus { outline: none; border-color: var(--primary); }
-.load-date-btn {
-  padding: 10px 16px; background: var(--primary); color: white;
-  border: none; border-radius: 10px; font-size: 0.85rem; font-weight: 700;
-  cursor: pointer; font-family: inherit; white-space: nowrap;
-}
+.load-date-btn { padding: 10px 16px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
 .fill-exercises-list { margin-bottom: 14px; }
-.fill-ex-item {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 0; border-bottom: 1px solid var(--border);
-}
+.fill-ex-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
 .fill-ex-item:last-child { border-bottom: none; }
 .fill-ex-name { font-weight: 600; font-size: 0.9rem; }
 .fill-ex-spec { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
-.fill-toggle {
-  display: flex; gap: 0; border-radius: 8px; overflow: hidden;
-  border: 2px solid var(--border); flex-shrink: 0;
-}
-.fill-toggle button {
-  padding: 6px 14px; border: none; font-size: 0.8rem; font-weight: 700;
-  cursor: pointer; font-family: inherit; transition: background 0.2s, color 0.2s;
-  background: transparent; color: var(--text-secondary);
-}
+.fill-toggle { display: flex; gap: 0; border-radius: 8px; overflow: hidden; border: 2px solid var(--border); flex-shrink: 0; }
+.fill-toggle button { padding: 6px 14px; border: none; font-size: 0.8rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.2s, color 0.2s; background: transparent; color: var(--text-secondary); }
 .fill-toggle button.selected-done { background: var(--success); color: white; }
 .fill-toggle button.selected-miss { background: var(--danger); color: white; }
-.save-history-btn {
-  width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white; border: none; border-radius: 10px;
-  font-size: 0.95rem; font-weight: 700; cursor: pointer;
-  font-family: inherit; transition: opacity 0.2s;
-}
+.save-history-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.2s; }
 .save-history-btn:active { opacity: 0.85; }
-.fill-status {
-  text-align: center; font-size: 0.85rem; margin-top: 10px;
-  padding: 8px; border-radius: 8px; display: none;
-}
+.fill-status { text-align: center; font-size: 0.85rem; margin-top: 10px; padding: 8px; border-radius: 8px; display: none; }
 .fill-status.success { background: #c6f6d5; color: #276749; display: block; }
 .fill-status.warning { background: #fefcbf; color: #744210; display: block; }
-
-/* Confetti */
-.confetti-container {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none; z-index: 9999; overflow: hidden;
-}
-.confetti {
-  position: absolute; width: 10px; height: 10px;
-  top: -10px; opacity: 1;
-  animation: confetti-fall 3s ease-out forwards;
-}
-@keyframes confetti-fall {
-  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-
-/* Modal */
-.modal-overlay {
-  display: none; position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%; background: rgba(0,0,0,0.5);
-  z-index: 200; align-items: center; justify-content: center;
-}
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; overflow: hidden; }
+.confetti { position: absolute; width: 10px; height: 10px; top: -10px; opacity: 1; animation: confetti-fall 3s ease-out forwards; }
+@keyframes confetti-fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
 .modal-overlay.show { display: flex; }
-.modal {
-  background: var(--card); border-radius: 16px;
-  padding: 24px; margin: 20px; max-width: 320px; width: 100%;
-  text-align: center;
-}
+.modal { background: var(--card); border-radius: 16px; padding: 24px; margin: 20px; max-width: 320px; width: 100%; text-align: center; }
 .modal h3 { margin-bottom: 8px; }
 .modal p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px; }
 .modal-buttons { display: flex; gap: 10px; }
-.modal-buttons button {
-  flex: 1; padding: 10px; border: none; border-radius: 10px;
-  font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: inherit;
-}
+.modal-buttons button { flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: inherit; }
 .modal-cancel { background: var(--border); color: var(--text); }
 .modal-confirm { background: var(--danger); color: white; }
+.edit-modal { background: var(--card); border-radius: 16px; padding: 20px; margin: 16px; max-width: 380px; width: 100%; max-height: 85vh; overflow-y: auto; }
+.edit-modal h3 { margin-bottom: 4px; font-size: 1rem; }
+.edit-modal .edit-modal-date { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 16px; }
+.edit-modal-exercises { margin-bottom: 16px; }
+.edit-modal-buttons { display: flex; gap: 10px; }
+.edit-modal-buttons button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+.modal-save { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
 </style>
-</head>
-<body>
+</head><body>
 <div class="header">
   <h1>🏋️ 每日復健訓練</h1>
   <div class="date" id="headerDate"></div>
@@ -382,17 +211,41 @@ body {
     </div>
   </div>
 </div>
+<div class="modal-overlay" id="deleteHistoryModal">
+  <div class="modal">
+    <h3>確認刪除紀錄</h3>
+    <p id="deleteHistoryModalText">確定要刪除這天的訓練紀錄嗎？</p>
+    <div class="modal-buttons">
+      <button class="modal-cancel" onclick="closeDeleteHistoryModal()">取消</button>
+      <button class="modal-confirm" onclick="confirmDeleteHistory()">刪除</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="editHistoryModal">
+  <div class="edit-modal">
+    <h3>✏️ 修改訓練紀錄</h3>
+    <div class="edit-modal-date" id="editHistoryDateLabel"></div>
+    <div class="edit-modal-exercises" id="editHistoryExercises"></div>
+    <div class="edit-modal-buttons">
+      <button class="modal-cancel" onclick="closeEditHistoryModal()">取消</button>
+      <button class="modal-save" onclick="saveEditHistory()">💾 儲存修改</button>
+    </div>
+  </div>
+</div>
 <script>
 const STORAGE_DATA='rehab-tracker-data';
 const STORAGE_EXERCISES='rehab-tracker-exercises';
 const DEFAULT_EXERCISES=[{id:1,name:'側躺髖內轉',spec:'10下 × 3組'},{id:2,name:'微蹲單腳站',spec:'兩腳都練，10個呼吸 × 5組'},{id:3,name:'死蟲',spec:'10個呼吸 × 5組'},{id:4,name:'呼吸訓練',spec:'側倒10個 + 擺正10個呼吸，連續3組'}];
 let deleteTargetId=null;
+let deleteHistoryTargetDate=null;
+let editHistoryTargetDate=null;
+
 function getExercises(){const s=localStorage.getItem(STORAGE_EXERCISES);if(s)return JSON.parse(s);localStorage.setItem(STORAGE_EXERCISES,JSON.stringify(DEFAULT_EXERCISES));return DEFAULT_EXERCISES;}
 function saveExercises(e){localStorage.setItem(STORAGE_EXERCISES,JSON.stringify(e));}
 function getData(){const s=localStorage.getItem(STORAGE_DATA);return s?JSON.parse(s):{};}
 function saveData(d){localStorage.setItem(STORAGE_DATA,JSON.stringify(d));}
 function getToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function formatDate(ds){const d=new Date(ds+'T00:00:00');const w=['日','一','二','三','四','五','六'];return(d.getMonth()+1)+'/'+d.getDate()+' ('+w[d.getDay()]+')';}
+function formatDate(ds){const d=new Date(ds+'T00:00:00');const w=['日','一','二','三','四','五','六'];return(d.getMonth()+1)+'/'+d.getDate()+' (週'+w[d.getDay()]+')';}
 function getTodayDisplay(){const d=new Date();const w=['日','一','二','三','四','五','六'];return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 '+w[d.getDay()];}
 
 function switchTab(tabId,btn){
@@ -468,7 +321,7 @@ function renderHistory(){
   histList.innerHTML=dates.slice(0,30).map(ds=>{
     const dd=data[ds];const done=exercises.filter(ex=>dd[ex.id]===true).length;
     const pct=exercises.length>0?Math.round((done/exercises.length)*100):0;
-    return '<div class="history-item"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="history-date">'+formatDate(ds)+'</div><div class="history-rate">'+pct+'%</div></div><div class="history-exercises">'+exercises.map(ex=>'<span class="history-ex '+(dd[ex.id]?'done':'missed')+'">'+(dd[ex.id]?'✅':'❌')+' '+ex.name+'</span>').join('')+'</div></div>';
+    return '<div class="history-item"><div class="history-item-header"><div class="history-date">'+formatDate(ds)+'</div><div style="display:flex;align-items:center;gap:8px;"><div class="history-rate">'+pct+'%</div><div class="history-item-actions"><button class="edit-history-btn" onclick="openEditHistoryModal(''+ds+'')">✏️ 修改</button><button class="delete-history-btn" onclick="openDeleteHistoryModal(''+ds+'')">🗑️ 刪除</button></div></div></div><div class="history-exercises">'+exercises.map(ex=>'<span class="history-ex '+(dd[ex.id]?'done':'missed')+'">'+(dd[ex.id]?'✅':'❌')+' '+ex.name+'</span>').join('')+'</div></div>';
   }).join('');
 }
 
@@ -492,7 +345,7 @@ function drawChart(data,exercises){
 
 function renderManage(){
   const exercises=getExercises();
-  document.getElementById('manageList').innerHTML=exercises.map((ex,i)=>'<div class="manage-item"><div class="manage-info"><div class="manage-name">'+(i+1)+'. '+ex.name+'</div><div class="manage-spec">'+ex.spec+'</div></div><button class="delete-btn" onclick="showDeleteModal('+ex.id+',\''+ex.name.replace(/'/g,"\\'")+'\')">刪除</button></div>').join('');
+  document.getElementById('manageList').innerHTML=exercises.map((ex,i)=>'<div class="manage-item"><div class="manage-info"><div class="manage-name">'+(i+1)+'. '+ex.name+'</div><div class="manage-spec">'+ex.spec+'</div></div><button class="delete-btn" onclick="showDeleteModal('+ex.id+',''+ex.name.replace(/'/g,"\'")+'')">刪除</button></div>').join('');
   const fillDateEl=document.getElementById('fillDate');
   if(fillDateEl&&!fillDateEl.value)fillDateEl.value=getToday();
 }
@@ -510,6 +363,48 @@ function showDeleteModal(id,name){deleteTargetId=id;document.getElementById('del
 function closeDeleteModal(){document.getElementById('deleteModal').classList.remove('show');deleteTargetId=null;}
 function confirmDelete(){if(deleteTargetId===null)return;saveExercises(getExercises().filter(ex=>ex.id!==deleteTargetId));closeDeleteModal();renderManage();renderExercises();}
 
+function openDeleteHistoryModal(dateStr){
+  deleteHistoryTargetDate=dateStr;
+  const d=new Date(dateStr+'T00:00:00');const w=['日','一','二','三','四','五','六'];
+  const label=(d.getMonth()+1)+'月'+d.getDate()+'日 (週'+w[d.getDay()]+')';
+  document.getElementById('deleteHistoryModalText').textContent='確定要刪除 '+label+' 的訓練紀錄嗎？';
+  document.getElementById('deleteHistoryModal').classList.add('show');
+}
+function closeDeleteHistoryModal(){document.getElementById('deleteHistoryModal').classList.remove('show');deleteHistoryTargetDate=null;}
+function confirmDeleteHistory(){
+  if(!deleteHistoryTargetDate)return;
+  const data=getData();delete data[deleteHistoryTargetDate];saveData(data);
+  closeDeleteHistoryModal();renderHistory();renderExercises();
+}
+
+function openEditHistoryModal(dateStr){
+  editHistoryTargetDate=dateStr;
+  const exercises=getExercises();const data=getData();const dayData=data[dateStr]||{};
+  const d=new Date(dateStr+'T00:00:00');const w=['日','一','二','三','四','五','六'];
+  const label=(d.getMonth()+1)+'月'+d.getDate()+'日 (週'+w[d.getDay()]+')';
+  document.getElementById('editHistoryDateLabel').textContent=label;
+  document.getElementById('editHistoryExercises').innerHTML=exercises.map(ex=>{
+    const isDone=dayData[ex.id]===true;
+    return '<div class="fill-ex-item"><div><div class="fill-ex-name">'+ex.name+'</div><div class="fill-ex-spec">'+ex.spec+'</div></div><div class="fill-toggle"><button id="edit-btn-done-'+ex.id+'" class="'+(isDone?'selected-done':'')+'" onclick="setEditToggle('+ex.id+',true)">✅ 完成</button><button id="edit-btn-miss-'+ex.id+'" class="'+(!isDone?'selected-miss':'')+'" onclick="setEditToggle('+ex.id+',false)">❌ 未做</button></div></div>';
+  }).join('');
+  document.getElementById('editHistoryModal').classList.add('show');
+}
+function closeEditHistoryModal(){document.getElementById('editHistoryModal').classList.remove('show');editHistoryTargetDate=null;}
+function setEditToggle(exId,done){
+  const db=document.getElementById('edit-btn-done-'+exId);const mb=document.getElementById('edit-btn-miss-'+exId);
+  if(done){db.className='selected-done';mb.className='';}else{db.className='';mb.className='selected-miss';}
+}
+function saveEditHistory(){
+  if(!editHistoryTargetDate)return;
+  const exercises=getExercises();const data=getData();if(!data[editHistoryTargetDate])data[editHistoryTargetDate]={};
+  exercises.forEach(ex=>{
+    const db=document.getElementById('edit-btn-done-'+ex.id);const mb=document.getElementById('edit-btn-miss-'+ex.id);
+    if(db&&db.classList.contains('selected-done')){data[editHistoryTargetDate][ex.id]=true;}
+    else if(mb&&mb.classList.contains('selected-miss')){data[editHistoryTargetDate][ex.id]=false;}
+  });
+  saveData(data);closeEditHistoryModal();renderHistory();renderExercises();
+}
+
 function loadFillDate(){
   const dateVal=document.getElementById('fillDate').value;if(!dateVal){alert('請選擇日期');return;}
   const exercises=getExercises();const data=getData();const dayData=data[dateVal]||{};
@@ -517,9 +412,9 @@ function loadFillDate(){
   statusEl.className='fill-status';statusEl.textContent='';
   if(exercises.length===0){listEl.innerHTML='<div style="color:#718096;font-size:0.85rem;padding:10px 0;">目前沒有設定訓練動作</div>';document.getElementById('saveHistoryBtn').style.display='none';return;}
   const d=new Date(dateVal+'T00:00:00');const w=['日','一','二','三','四','五','六'];
-  const dateLabel=(d.getMonth()+1)+'月'+d.getDate()+'日 ('+w[d.getDay()]+')';
+  const dateLabel=(d.getMonth()+1)+'月'+d.getDate()+'日 (週'+w[d.getDay()]+')';
   const existing=Object.keys(dayData).length>0;
-  listEl.innerHTML='<div style="font-size:0.8rem;color:#718096;margin-bottom:10px;">'+dateLabel+(existing?' ・ <span style="color:#667eea">已有紀錄，可修改</span>':' ・ 尚無紀錄')+'</div>'+exercises.map(ex=>{const isDone=dayData[ex.id]===true;return'<div class="fill-ex-item"><div><div class="fill-ex-name">'+ex.name+'</div><div class="fill-ex-spec">'+ex.spec+'</div></div><div class="fill-toggle"><button id="btn-done-'+ex.id+'" class="'+(isDone?'selected-done':'')+'" onclick="setFillToggle('+ex.id+', true)">✅ 完成</button><button id="btn-miss-'+ex.id+'" class="'+(!isDone&&existing?'selected-miss':'')+'" onclick="setFillToggle('+ex.id+', false)">❌ 未做</button></div></div>';}).join('');
+  listEl.innerHTML='<div style="font-size:0.8rem;color:#718096;margin-bottom:10px;">'+dateLabel+(existing?' · <span style="color:#667eea">已有紀錄，可修改</span>':' · 尚無紀錄')+'</div>'+exercises.map(ex=>{const isDone=dayData[ex.id]===true;return'<div class="fill-ex-item"><div><div class="fill-ex-name">'+ex.name+'</div><div class="fill-ex-spec">'+ex.spec+'</div></div><div class="fill-toggle"><button id="btn-done-'+ex.id+'" class="'+(isDone?'selected-done':'')+'" onclick="setFillToggle('+ex.id+', true)">✅ 完成</button><button id="btn-miss-'+ex.id+'" class="'+(!isDone&&existing?'selected-miss':'')+'" onclick="setFillToggle('+ex.id+', false)">❌ 未做</button></div></div>';}).join('');
   document.getElementById('saveHistoryBtn').style.display='block';
   setTimeout(()=>{const fs=document.querySelector('.history-fill-section');const tm=document.getElementById('tabManage');if(fs&&tm)tm.scrollTo({top:fs.offsetTop-16,behavior:'smooth'});},50);
 }
@@ -537,9 +432,9 @@ function saveHistoryData(){
   exercises.forEach(ex=>{const db=document.getElementById('btn-done-'+ex.id);const mb=document.getElementById('btn-miss-'+ex.id);if(!db&&!mb)return;if(db&&db.classList.contains('selected-done')){data[dateVal][ex.id]=true;}else if(mb&&mb.classList.contains('selected-miss')){data[dateVal][ex.id]=false;}});
   saveData(data);
   const s=document.getElementById('fillStatus');const d=new Date(dateVal+'T00:00:00');const w=['日','一','二','三','四','五','六'];
-  s.textContent='✅ 已儲存 '+(d.getMonth()+1)+'/'+d.getDate()+' ('+w[d.getDay()]+') 的訓練紀錄！';s.className='fill-status success';
+  s.textContent='✅ 已儲存 '+(d.getMonth()+1)+'/'+d.getDate()+' (週'+w[d.getDay()]+') 的訓練紀錄！';s.className='fill-status success';
   renderExercises();
-  setTimeout(()=>{const s2=document.getElementById('fillStatus');const tm=document.getElementById('tabManage');if(s2&&tm)tm.scrollTo({top:tm.scrollHeight,behavior:'smooth'});},50);
+  setTimeout(()=>{const tm=document.getElementById('tabManage');if(tm)tm.scrollTo({top:tm.scrollHeight,behavior:'smooth'});},50);
   setTimeout(()=>{s.className='fill-status';s.textContent='';},3000);
 }
 
