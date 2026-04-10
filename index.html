@@ -293,11 +293,9 @@ async function syncToCloud(date){
     const exercises=getExercises();
     const dayData=data[date]||{};
     const exList=exercises.map(ex=>({id:ex.id,completed:dayData[ex.id]===true}));
-    await fetch(CLOUD_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'saveDay',date:date,exercises:exList})
-    });
+    const params=new URLSearchParams({action:'saveDay',date:date,exercises:JSON.stringify(exList)});
+    const res=await fetch(CLOUD_URL+'?'+params.toString());
+    if(!res.ok)throw new Error('HTTP '+res.status);
     setSyncStatus('ok');
   }catch(e){
     console.warn('syncToCloud failed:',e);
@@ -309,11 +307,9 @@ async function syncToCloud(date){
 async function syncExercisesToCloud(){
   try{
     const exercises=getExercises();
-    await fetch(CLOUD_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'saveExercises',exercises:exercises})
-    });
+    const params=new URLSearchParams({action:'saveExercises',exercises:JSON.stringify(exercises)});
+    const res=await fetch(CLOUD_URL+'?'+params.toString());
+    if(!res.ok)throw new Error('HTTP '+res.status);
     setSyncStatus('ok');
   }catch(e){
     console.warn('syncExercisesToCloud failed:',e);
